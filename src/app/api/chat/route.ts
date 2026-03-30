@@ -1,4 +1,4 @@
-import { streamText, stepCountIs } from "ai";
+import { streamText, stepCountIs, convertToModelMessages } from "ai";
 import { google } from "@ai-sdk/google";
 import { setAIContext } from "@auth0/ai-vercel";
 import { auth0 } from "@/lib/auth0";
@@ -16,21 +16,35 @@ import {
 } from "@/lib/tools/slack";
 
 export async function POST(req: Request) {
-  const session = await auth0.getSession();
-  if (!session) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  try {
+    const session = await auth0.getSession();
+    if (!session) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
-  const { messages } = await req.json();
-  const threadID = `nexus-${session.user.sub}-${Date.now()}`;
+    const { messages } = await req.json();
+    const threadID = `nexus-${session.user.sub}-${Date.now()}`;
 
-  setAIContext({ threadID });
+    setAIContext({ threadID });
 
-  const model = google("gemini-2.0-flash");
+    const model = google("gemini-2.5-flash");
+    const modelMessages = await convertToModelMessages(messages);
 
-  const result = streamText({
-    model,
-    system: `You are Nexus, a powerful AI agent that helps users manage their digital life across Google, GitHub, and Slack. You have secure access to the user's connected services through Auth0 Token Vault.
+    const tools = {
+      searchGmail,
+      checkCalendar,
+      listGitHubRepos,
+      getGitHubIssues,
+      createGitHubIssue,
+      getGitHubProfile,
+      listSlackChannels,
+      sendSlackMessage,
+      getSlackChannelHistory,
+    };
+
+    const result = streamText({
+      model,
+      system: `You are Nexus, a powerful AI agent that helps users manage their digital life across Google, GitHub, and Slack. You have secure access to the user's connected services through Auth0 Token Vault.
 
 Your capabilities:
 - **Google**: Search Gmail, check Google Calendar events and availability
@@ -47,20 +61,19 @@ Guidelines:
 - For cross-service tasks, explain your plan before executing
 
 The user's name is ${session.user.name || "there"}.`,
-    messages,
-    tools: {
-      searchGmail,
-      checkCalendar,
-      listGitHubRepos,
-      getGitHubIssues,
-      createGitHubIssue,
-      getGitHubProfile,
-      listSlackChannels,
-      sendSlackMessage,
-      getSlackChannelHistory,
-    },
-    stopWhen: stepCountIs(5),
-  });
+      messages: modelMessages,
+      tools,
+      stopWhen: stepCountIs(5),
+    });
 
-  return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      originalMessages: messages,
+    });
+  } catch (error) {
+    console.error("[chat] Error:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Internal server error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }

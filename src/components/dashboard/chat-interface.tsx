@@ -44,7 +44,7 @@ const suggestedPrompts = [
 ];
 
 export function ChatInterface() {
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
   const [input, setInput] = useState("");
@@ -240,6 +240,13 @@ export function ChatInterface() {
           ))}
 
           {/* Loading indicator */}
+          {error && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive">
+              <XCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>{error.message || "Something went wrong"}</span>
+            </div>
+          )}
+
           {isLoading && (
             <motion.div
               initial={{ opacity: 0 }}

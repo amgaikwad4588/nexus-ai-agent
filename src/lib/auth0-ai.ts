@@ -37,7 +37,7 @@ export const withGitHubAccess = auth0AI.withTokenVault({
 
 // Token Vault authorizer for Slack
 export const withSlackAccess = auth0AI.withTokenVault({
-  connection: "slack",
+  connection: "slack-oauth-2",
   scopes: [
     "channels:read",
     "chat:write",

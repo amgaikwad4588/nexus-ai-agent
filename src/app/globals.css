@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -95,7 +95,7 @@
   --secondary: oklch(0.18 0.01 270);
   --secondary-foreground: oklch(0.95 0 0);
   --muted: oklch(0.18 0.01 270);
-  --muted-foreground: oklch(0.65 0 0);
+  --muted-foreground: oklch(0.75 0 0);
   --accent: oklch(0.18 0.015 270);
   --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -122,10 +122,19 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-[15px] leading-relaxed tracking-wide;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  p, span, li, td, th, label {
+    @apply font-normal;
+    letter-spacing: 0.01em;
   }
 }
 

@@ -116,7 +116,7 @@ export function ConnectionsPage() {
         {
           id: "slack",
           name: "Slack",
-          connection: "slack",
+          connection: "slack-oauth-2",
           icon: "slack",
           connected: false,
           scopes: ["channels:read", "chat:write"],
@@ -285,7 +285,7 @@ export function ConnectionsPage() {
                     {/* Connect Button */}
                     {!service.connected && (
                       <a
-                        href={`/auth/login?connection=${service.connection}&returnTo=/dashboard/connections`}
+                        href={`/api/connect?connection=${service.connection}`}
                       >
                         <Button size="sm" className="w-full">
                           <ExternalLink className="w-3 h-3 mr-2" />

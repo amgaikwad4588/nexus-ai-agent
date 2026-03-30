@@ -100,8 +100,8 @@ export const checkCalendar = withGoogleAccess(
     description:
       "Check the user's Google Calendar for events on a specific date or date range. Use this to check availability or list upcoming events.",
     inputSchema: z.object({
-      date: z.coerce
-        .date()
+      date: z
+        .string()
         .describe("The date to check (ISO format, e.g., 2026-03-29)"),
       daysAhead: z
         .number()

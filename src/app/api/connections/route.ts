@@ -10,7 +10,7 @@ const SERVICES: ConnectedService[] = [
     connection: "google-oauth2",
     icon: "google",
     connected: false,
-    scopes: ["gmail.readonly", "calendar.readonly", "calendar.freebusy"],
+    scopes: ["gmail.readonly", "calendar.readonly"],
     tokenStatus: "not_connected",
   },
   {
@@ -22,16 +22,15 @@ const SERVICES: ConnectedService[] = [
     scopes: ["repo", "read:user", "read:org"],
     tokenStatus: "not_connected",
   },
-  {
-    id: "slack",
-    name: "Slack",
-    connection: "slack-oauth-2",
-    icon: "slack",
-    connected: false,
-    scopes: ["channels:read", "chat:write", "users:read", "channels:history"],
-    tokenStatus: "not_connected",
-  },
 ];
+
+interface ConnectedAccount {
+  id: string;
+  connection: string;
+  access_type?: string;
+  scopes?: string[];
+  created_at?: string;
+}
 
 export async function GET() {
   const session = await auth0.getSession();
@@ -39,8 +38,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Use M2M Management API token to get full user profile with all linked identities
-  let identities: { connection: string; provider: string }[] = [];
+  // Check connected_accounts via Management API (this is where Token Vault stores connections)
+  let connectedAccounts: ConnectedAccount[] = [];
 
   try {
     const token = await getManagementToken();
@@ -48,33 +47,45 @@ export async function GET() {
     const userId = session.user.sub;
 
     const res = await fetch(
-      `https://${domain}/api/v2/users/${encodeURIComponent(userId)}?fields=identities`,
+      `https://${domain}/api/v2/users/${encodeURIComponent(userId)}/connected-accounts`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
 
     if (res.ok) {
-      const user = await res.json();
-      identities = user.identities || [];
-      console.log("[Nexus] User identities:", JSON.stringify(identities.map((i: { provider: string; connection: string }) => `${i.provider}|${i.connection}`)));
+      const data = await res.json();
+      connectedAccounts = data.connected_accounts || data || [];
+      console.log(
+        "[Nexus] Connected accounts:",
+        JSON.stringify(
+          connectedAccounts.map((a) => `${a.connection} (${a.id})`)
+        )
+      );
     } else {
-      console.log("[Nexus] Management API error:", res.status, await res.text());
+      console.log(
+        "[Nexus] Management API error fetching connected accounts:",
+        res.status,
+        await res.text()
+      );
     }
   } catch (err) {
-    console.log("[Nexus] Failed to fetch identities:", err);
+    console.log("[Nexus] Failed to fetch connected accounts:", err);
   }
 
   const services = SERVICES.map((service) => {
-    const identity = identities.find(
-      (id) => id.connection === service.connection || id.provider === service.connection
+    const account = connectedAccounts.find(
+      (a) => a.connection === service.connection
     );
 
     return {
       ...service,
-      connected: !!identity,
-      tokenStatus: identity ? ("active" as const) : ("not_connected" as const),
-      lastUsed: identity ? new Date().toISOString() : undefined,
+      connected: !!account,
+      accountId: account?.id,
+      tokenStatus: account
+        ? ("active" as const)
+        : ("not_connected" as const),
+      lastUsed: account?.created_at,
     };
   });
 

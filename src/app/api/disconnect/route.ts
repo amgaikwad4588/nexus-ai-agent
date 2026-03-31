@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth0";
-import { getManagementToken } from "@/lib/management";
+import { getMyAccountToken } from "@/lib/management";
 
 export async function POST(request: Request) {
   const session = await auth0.getSession();
@@ -8,74 +8,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { provider, connection } = await request.json();
-  if (!provider || !connection) {
+  const { accountId } = await request.json();
+  if (!accountId) {
     return NextResponse.json(
-      { error: "Missing provider or connection" },
+      { error: "Missing accountId" },
       { status: 400 }
     );
   }
 
-  const token = await getManagementToken();
-  const domain = process.env.AUTH0_DOMAIN;
-  const primaryUserId = session.user.sub;
-
-  // Fetch user identities to find the one matching the provider/connection
-  const userRes = await fetch(
-    `https://${domain}/api/v2/users/${encodeURIComponent(primaryUserId)}?fields=identities`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-
-  if (!userRes.ok) {
-    console.error("[Nexus] Failed to fetch user for disconnect:", userRes.status);
+  const refreshToken = session.tokenSet.refreshToken;
+  if (!refreshToken) {
     return NextResponse.json(
-      { error: "Failed to fetch user identities" },
-      { status: 500 }
+      { error: "No refresh token available" },
+      { status: 400 }
     );
   }
 
-  const user = await userRes.json();
-  const identities: { provider: string; connection: string; user_id: string }[] =
-    user.identities || [];
+  try {
+    const domain = process.env.AUTH0_DOMAIN!;
+    const myAccountToken = await getMyAccountToken(refreshToken);
 
-  // Find the secondary identity that matches the requested provider/connection
-  // Skip the primary identity (index 0) — it cannot be unlinked
-  const identity = identities.find(
-    (id, index) =>
-      index > 0 &&
-      (id.connection === connection || id.provider === provider)
-  );
-
-  if (!identity) {
-    return NextResponse.json(
-      { error: "Identity not found or is the primary identity" },
-      { status: 404 }
+    // Delete the connected account via My Account API
+    const deleteRes = await fetch(
+      `https://${domain}/me/v1/connected-accounts/accounts/${encodeURIComponent(accountId)}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${myAccountToken}`,
+        },
+      }
     );
-  }
 
-  // Unlink the identity using the Management API
-  const unlinkRes = await fetch(
-    `https://${domain}/api/v2/users/${encodeURIComponent(primaryUserId)}/identities/${encodeURIComponent(identity.provider)}/${encodeURIComponent(identity.user_id)}`,
-    {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+    if (!deleteRes.ok && deleteRes.status !== 204) {
+      const err = await deleteRes.text();
+      console.error("[Nexus] Failed to delete connected account:", deleteRes.status, err);
+      return NextResponse.json(
+        { error: "Failed to disconnect account" },
+        { status: 500 }
+      );
     }
-  );
 
-  if (!unlinkRes.ok) {
-    const errorText = await unlinkRes.text();
-    console.error("[Nexus] Failed to unlink identity:", unlinkRes.status, errorText);
+    console.log(`[Nexus] Disconnected account: ${accountId}`);
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[Nexus] Disconnect error:", err);
     return NextResponse.json(
       { error: "Failed to disconnect account" },
       { status: 500 }
     );
   }
-
-  console.log(
-    `[Nexus] Unlinked ${identity.provider}|${identity.connection} from ${primaryUserId}`
-  );
-
-  return NextResponse.json({ success: true });
 }

@@ -12,27 +12,18 @@ export async function GET() {
     ? session.tokenSet.refreshToken.substring(0, 10) + "..."
     : null;
 
-  // Check user identities via Management API
-  let identitiesFromMgmt = null;
+  // Check connected accounts via Management API (Token Vault stores tokens here)
+  let connectedAccounts = null;
   try {
     const mgmtToken = await getManagementToken();
     const domain = process.env.AUTH0_DOMAIN!;
     const userRes = await fetch(
-      `https://${domain}/api/v2/users/${encodeURIComponent(session.user.sub)}?fields=identities`,
+      `https://${domain}/api/v2/users/${encodeURIComponent(session.user.sub)}/connected-accounts`,
       { headers: { Authorization: `Bearer ${mgmtToken}` } }
     );
-    const userData = await userRes.json();
-    identitiesFromMgmt = userData.identities?.map(
-      (i: { provider: string; connection: string; access_token?: string; refresh_token?: string }) => ({
-        provider: i.provider,
-        connection: i.connection,
-        hasAccessToken: !!i.access_token,
-        hasRefreshToken: !!i.refresh_token,
-        accessTokenPreview: i.access_token ? i.access_token.substring(0, 15) + "..." : null,
-      })
-    );
+    connectedAccounts = await userRes.json();
   } catch (err) {
-    identitiesFromMgmt = { error: String(err) };
+    connectedAccounts = { error: String(err) };
   }
 
   // Try the token exchange manually
@@ -40,7 +31,7 @@ export async function GET() {
   const clientId = process.env.AUTH0_AI_CLIENT_ID || process.env.AUTH0_CLIENT_ID;
   const clientSecret = process.env.AUTH0_AI_CLIENT_SECRET || process.env.AUTH0_CLIENT_SECRET;
 
-  const connections = ["google-oauth2", "github", "slack-oauth-2"];
+  const connections = ["google-oauth2", "github", "sign-in-with-slack"];
   const exchangeResults: Record<string, unknown> = {};
 
   if (session.tokenSet.refreshToken) {
@@ -75,7 +66,7 @@ export async function GET() {
     user: session.user.sub,
     hasRefreshToken,
     refreshTokenPreview,
-    identitiesFromMgmt,
+    connectedAccounts,
     exchangeResults,
     config: {
       domain,

@@ -16,6 +16,7 @@ export interface ConnectedService {
   connection: string;
   icon: string;
   connected: boolean;
+  accountId?: string;
   scopes: string[];
   lastUsed?: string;
   tokenStatus: "active" | "expiring" | "expired" | "not_connected";

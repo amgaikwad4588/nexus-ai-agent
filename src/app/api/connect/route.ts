@@ -40,6 +40,15 @@ export async function GET(req: Request) {
     const myAccountToken = await getMyAccountToken(refreshToken);
 
     // Initiate the Connected Accounts flow via My Account API
+    const connectPayload = {
+      connection,
+      redirect_uri: `${process.env.APP_BASE_URL}/api/connect/complete`,
+      state: crypto.randomUUID(),
+      scopes: CONNECTION_SCOPES[connection] || [],
+    };
+    console.log("[Nexus] Connect initiate payload:", JSON.stringify(connectPayload));
+    console.log("[Nexus] My Account token prefix:", myAccountToken?.slice(0, 20));
+
     const connectRes = await fetch(
       `https://${domain}/me/v1/connected-accounts/connect`,
       {
@@ -48,12 +57,7 @@ export async function GET(req: Request) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${myAccountToken}`,
         },
-        body: JSON.stringify({
-          connection,
-          redirect_uri: `${process.env.APP_BASE_URL}/api/connect/complete`,
-          state: crypto.randomUUID(),
-          scopes: CONNECTION_SCOPES[connection] || [],
-        }),
+        body: JSON.stringify(connectPayload),
       }
     );
 
@@ -66,6 +70,7 @@ export async function GET(req: Request) {
     }
 
     const connectData = await connectRes.json();
+    console.log("[Nexus] Connect response:", JSON.stringify(connectData));
 
     // Store auth_session in a cookie for verification during the complete step
     const cookieStore = await cookies();

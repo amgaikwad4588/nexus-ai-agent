@@ -16,10 +16,16 @@ export interface PendingAction {
 }
 
 // In-memory store for pending actions (in production, use a database)
-const pendingActions = new Map<string, PendingAction>();
+// Attached to globalThis to survive Next.js HMR in development
+const globalForStepUp = globalThis as typeof globalThis & {
+  _pendingActions?: Map<string, PendingAction>;
+  _stepUpSessions?: Map<string, { verifiedAt: string; expiresAt: string }>;
+};
+
+const pendingActions = globalForStepUp._pendingActions ??= new Map<string, PendingAction>();
 
 // Step-up session: tracks users who have recently verified their identity
-const stepUpSessions = new Map<string, { verifiedAt: string; expiresAt: string }>();
+const stepUpSessions = globalForStepUp._stepUpSessions ??= new Map<string, { verifiedAt: string; expiresAt: string }>();
 
 const PENDING_ACTION_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const STEP_UP_SESSION_TTL_MS = 10 * 60 * 1000; // 10 minutes

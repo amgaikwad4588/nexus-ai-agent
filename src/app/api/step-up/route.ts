@@ -63,7 +63,15 @@ export async function POST(req: Request) {
 
     // Execute the approved action
     const result = await executeAction(action.toolName, action.args, session);
+    console.log("[step-up] executeAction result:", JSON.stringify(result));
     markExecuted(actionId, result);
+
+    if (result.error) {
+      return Response.json(
+        { status: "error", action: { ...action, status: "error" }, result },
+        { status: 502 }
+      );
+    }
 
     return Response.json({ status: "executed", action: { ...action, status: "executed" }, result });
   } catch (error) {

@@ -33,12 +33,19 @@ export async function getAccessTokenForService(
       }),
     });
 
+    const responseText = await res.text();
     if (!res.ok) {
-      console.error(`[token-exchange] Failed for ${service}:`, res.status);
+      console.error(`[token-exchange] Failed for ${service}:`, res.status, responseText);
       return null;
     }
 
-    const data = await res.json();
+    const data = JSON.parse(responseText);
+    console.log(`[token-exchange] Success for ${service}:`, {
+      scopes: data.scope,
+      tokenType: data.token_type,
+      tokenPrefix: data.access_token?.slice(0, 15),
+      expiresIn: data.expires_in,
+    });
     return data.access_token || null;
   } catch (error) {
     console.error(`[token-exchange] Error for ${service}:`, error);

@@ -232,12 +232,10 @@ export function ChatInterface() {
         body: JSON.stringify({ actionId, decision: "approve" }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to approve");
-      }
-
       const data = await res.json();
+      if (!res.ok || data.status === "error") {
+        throw new Error(data.result?.error || data.error || "Action execution failed");
+      }
       setApprovalStates((prev) => ({
         ...prev,
         [actionId]: { status: "executed", result: data.result },

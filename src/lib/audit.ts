@@ -62,17 +62,22 @@ function writeLog(entries: AuditEntry[]) {
 }
 
 export function addAuditEntry(entry: Omit<AuditEntry, "id" | "timestamp">) {
-  const newEntry: AuditEntry = {
-    ...entry,
-    id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
-  };
-  const log = readLog();
-  log.unshift(newEntry);
-  // Keep last 500 entries
-  if (log.length > MAX_ENTRIES) log.length = MAX_ENTRIES;
-  writeLog(log);
-  return newEntry;
+  try {
+    const newEntry: AuditEntry = {
+      ...entry,
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+    };
+    const log = readLog();
+    log.unshift(newEntry);
+    // Keep last 500 entries
+    if (log.length > MAX_ENTRIES) log.length = MAX_ENTRIES;
+    writeLog(log);
+    return newEntry;
+  } catch (err) {
+    console.error("[audit] Failed to write audit entry:", err);
+    return { ...entry, id: "error", timestamp: new Date().toISOString() } as AuditEntry;
+  }
 }
 
 export function getAuditLog(limit = 50): AuditEntry[] {

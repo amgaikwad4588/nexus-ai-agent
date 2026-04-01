@@ -80,6 +80,7 @@ function withRiskEngine<T extends Record<string, any>>(
       } catch (err) {
         const ms = Math.round(performance.now() - start);
         const isTimeout = err instanceof Error && err.message === "TOOL_TIMEOUT";
+        console.error(`[tool] ${toolName} FAILED after ${ms}ms:`, err);
         addAuditEntry({
           action: `Tool ${isTimeout ? "timed out" : "failed"}: ${toolName}`,
           service: "system",

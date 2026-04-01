@@ -1,77 +1,167 @@
-# Nexus - Your AI Agent, Securely Connected to Your Digital Life
+<div align="center">
 
-We live in a world of scattered digital tools. Your emails sit in Gmail, your code lives on GitHub, your team conversations happen on Slack, your communities on Discord. Jumping between them is exhausting. What if one AI assistant could bridge all of them — without ever touching your passwords?
+<img src="https://raw.githubusercontent.com/amgaikwad4588/nexus-ai-agent/main/public/logo.png" alt="Nexus Logo" width="120" height="120" />
 
-**Nexus** is that assistant. It's an AI-powered command center that talks to Google, GitHub, Slack, and Discord on your behalf, using [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault) to handle every credential securely. You chat in plain English; Nexus does the rest.
+# Nexus
 
-Built for the [Authorized to Act: Auth0 for AI Agents Hackathon 2026](https://authorizedtoact.devpost.com/).
+### **Your AI Agent. Securely Connected. Always In Control.**
 
----
+*The only AI command center that bridges Gmail, GitHub, Slack & Discord — without ever touching your passwords.*
 
-## The Problem
+[![Built for Auth0 Hackathon 2026](https://img.shields.io/badge/Auth0%20Hackathon-2026-blue?style=for-the-badge&logo=auth0)](https://authorizedtoact.devpost.com/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](./LICENSE)
 
-AI agents are powerful, but giving them access to your accounts is terrifying. Most solutions store raw API tokens in environment variables or databases — one breach and everything is exposed. Users have no visibility into what the agent is doing, no way to scope its permissions, and no audit trail.
+[Live Demo](#) · [Watch the Video](#) · [Devpost](https://authorizedtoact.devpost.com/) · [GitHub](https://github.com/amgaikwad4588/nexus-ai-agent)
 
-## Our Solution
-
-Nexus solves this by putting **Auth0 Token Vault** at the center of every interaction:
-
-- The AI agent **never sees or stores raw credentials**. Token Vault exchanges scoped, short-lived access tokens on demand.
-- Every action is **logged in a real-time audit trail** — you can see exactly what API was called, with what scopes, and when.
-- High-risk operations like sending Slack messages or creating GitHub issues trigger **step-up authentication** — the agent literally asks your permission before acting.
-- A **permissions dashboard** lets you visualize exactly what access each connected service has, categorized by risk level.
-
-The result: an AI agent you can actually trust.
+</div>
 
 ---
 
-## What Nexus Can Do
+## What I Built
 
-Talk to Nexus like you'd talk to a colleague:
+> *"Summarize my unread emails and post a digest to #general on Slack."*
 
-> *"Summarize my unread emails and post a digest to #general on Slack"*
+One sentence. Four services. Zero passwords exposed.
 
-> *"List my open GitHub issues and check if I have any meetings tomorrow"*
+**Nexus** is an AI-powered command center that lets you control Google, GitHub, Slack, and Discord through plain English — while [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault) handles every credential with zero raw token exposure. Every action passes through a **centralized risk engine** that decides in real time: auto-execute, require step-up approval, demand re-authentication, or block entirely.
 
-> *"Create a GitHub issue for the login bug and let the team know on Slack"*
+Built for the [**Authorized to Act: Auth0 for AI Agents Hackathon 2026**](https://authorizedtoact.devpost.com/).
 
-> *"Show my Discord servers and check my roles"*
+---
 
-Under the hood, Nexus has **12 tools** across 4 services:
+## The Problem With AI Agents Today
 
-| Tool | Service | What It Does | Risk | Auth Method |
-|------|---------|-------------|------|-------------|
-| `searchGmail` | Google | Search your inbox | Low | Token Vault |
-| `checkCalendar` | Google | Check events & availability | Low | Token Vault |
-| `listGitHubRepos` | GitHub | List your repositories | Low | Token Vault |
-| `getGitHubIssues` | GitHub | View issues on a repo | Low | Token Vault |
-| `getGitHubProfile` | GitHub | Get your GitHub profile | Low | Token Vault |
-| `createGitHubIssue` | GitHub | Create a new issue | Medium | Token Vault + Step-Up |
-| `listSlackChannels` | Slack | Browse your channels | Low | Bot Token |
-| `getSlackChannelHistory` | Slack | Read channel messages | Low | Bot Token |
-| `sendSlackMessage` | Slack | Send a message | Medium | Bot Token + Step-Up |
-| `getDiscordProfile` | Discord | Get your Discord profile | Low | Token Vault |
-| `listDiscordGuilds` | Discord | List your servers | Low | Token Vault |
-| `getDiscordGuildMember` | Discord | Check membership & roles | Low | Token Vault |
+AI agents are powerful — but most implementations are a security nightmare:
 
-Medium-risk (write) operations trigger step-up authentication before executing.
+| Problem | Reality |
+|---|---|
+| Raw API tokens in `.env` files | One breach = everything exposed |
+| No audit trail | You have no idea what the agent did |
+| All-or-nothing permissions | Write access = same as read access |
+| No user control over write ops | Agent acts first, tells you later |
+
+Developers patch this with duct tape. Users just hope for the best.
+
+---
+
+## My Solution: Risk-First, Token-Vault-Backed AI
+
+Nexus is built on three security pillars:
+
+### 1. Auth0 Token Vault — Credentials Never Leave the Vault
+The AI agent **never sees or stores raw OAuth tokens.** Auth0 Token Vault exchanges your stored refresh tokens for short-lived, scoped access tokens on demand. The app is blind to your credentials by design.
+
+### 2. Centralized Risk Engine — Every Action Evaluated Before Execution
+Every single tool call passes through `riskEngine()` before anything executes:
+
+```
+LOW risk    → Auto-execute immediately
+MEDIUM risk → Yellow approval card in chat (step-up auth)
+HIGH risk   → Red re-authentication card required
+UNKNOWN     → Blocked by default (fail-closed)
+```
+
+This isn't a checkbox — it's a decision layer baked into every API call.
+
+### 3. Persistent Audit Trail — Full Visibility, Always
+Every action is logged to a persistent JSON store with `userId`, scopes used, risk classification, decision outcome, and timestamp. It survives server restarts. You can view raw JSON directly in the dashboard.
 
 ---
 
 ## How It Works
 
 ```
-You  →  Nexus AI  →  Auth0 Token Vault  →  Google / GitHub / Discord
-                         ↓                         ↓
-                   Audit Trail logged        Slack (Bot Token)
+You
+ │
+ ▼
+Nexus AI (Gemini via Vercel AI SDK)
+ │
+ ▼
+withRiskEngine() ──► Risk Engine evaluates tool call
+ │                      LOW  → EXECUTE
+ │                      MED  → STEP_UP (yellow card)
+ │                      HIGH → REAUTH  (red card)
+ │                      ???  → BLOCK
+ ▼
+Auth0 Token Vault ──► Short-lived scoped token
+ │
+ ├──► Google API (Gmail, Calendar)
+ ├──► GitHub API (Repos, Issues — read & write)
+ ├──► Discord API (Profile, Guilds, Members)
+ └──► Slack Bot Token (Channels, Messages)
+ │
+ ▼
+Audit Trail logged (persistent JSON, userId-tagged)
 ```
 
-1. **Connect** your Google, GitHub, and Discord accounts through Auth0 Connected Accounts. Tokens go straight to the Vault — our app never sees them. Slack connects via a workspace bot token.
-2. **Chat** with Nexus in natural language. It figures out which tools and services are needed.
-3. **Token Vault** exchanges your stored refresh tokens for short-lived, scoped access tokens — just enough permission to do the job.
-4. **Step-up auth** kicks in for write operations — the agent queues the action and waits for your explicit approval before executing.
-5. **Actions execute** against the real APIs, and every step is logged in the audit trail.
-6. **You stay in control.** Revoke access anytime. See everything the agent did. No black boxes.
+**Write operations (Medium/High risk)** queue a pending action and surface an approval card in chat. The user clicks **Authorize & Execute** — only then does the token exchange happen and the action fire. Deny it, and nothing ever runs.
+
+---
+
+## 12 Verified Tools Across 4 Services
+
+All 12 tools are **verified working end-to-end**, including the full Token Vault + step-up auth flow.
+
+### Google — Token Vault
+| # | Tool | Action | Risk |
+|---|------|--------|------|
+| 1 | `searchGmail` | Search your inbox by query | Low |
+| 2 | `checkCalendar` | Check events & availability | Low |
+
+### GitHub — Token Vault
+| # | Tool | Action | Risk |
+|---|------|--------|------|
+| 3 | `getGitHubProfile` | Get authenticated user's profile | Low |
+| 4 | `listGitHubRepos` | List repos with sort/filter | Low |
+| 5 | `getGitHubIssues` | View issues on a repo | Low |
+| 6 | `createGitHubIssue` | Create a new issue *(write)* | Medium → Step-Up |
+
+### Slack — Bot Token + Step-Up
+| # | Tool | Action | Risk |
+|---|------|--------|------|
+| 7 | `listSlackChannels` | Browse accessible channels | Low |
+| 8 | `getSlackChannelHistory` | Read recent messages | Low |
+| 9 | `sendSlackMessage` | Post a message *(write)* | Medium → Step-Up |
+
+### Discord — Token Vault
+| # | Tool | Action | Risk |
+|---|------|--------|------|
+| 10 | `getDiscordProfile` | Get your Discord profile | Low |
+| 11 | `listDiscordGuilds` | List your servers | Low |
+| 12 | `getDiscordGuildMember` | Check membership & roles | Low |
+
+> **Why bot token for Slack?** Slack's OAuth doesn't issue refresh tokens, making Token Vault technically impossible. I use a workspace bot token instead — an intentional, documented architectural decision, not a shortcut.
+
+---
+
+## Security Model Deep Dive
+
+| Principle | Implementation |
+|-----------|----------------|
+| **No raw credentials** | Token Vault stores and exchanges all OAuth tokens — app never touches them |
+| **Least privilege** | Each tool requests only the scopes it needs, nothing more |
+| **Short-lived tokens** | Refresh tokens → temporary access tokens per request |
+| **Risk classification** | Every tool tagged: `low / medium / high / unknown` |
+| **Fail-closed** | Unknown tools are blocked by default, not allowed |
+| **Step-up auth** | Write ops queue pending actions, wait for explicit user approval |
+| **Re-auth for high-risk** | Destructive operations require a fresh authentication session |
+| **Full audit trail** | Every decision logged: tool name, risk level, decision, userId, timestamp |
+| **Smart input validation** | `createGitHubIssue` validates repo existence before even queuing the approval |
+
+---
+
+## Key Technical Highlights
+
+### Smart Repo Validation
+`createGitHubIssue` validates the repository exists **before** showing the approval card. If you pass `nexus-ai-agent` instead of `amgaikwad4588/nexus-ai-agent`, it fetches your repos, finds matches, and suggests the correct format — no 404 at execution time.
+
+### Persistent Audit Logging
+Audit logs persist to `data/audit-log.json` (capped at 500 entries), survive server restarts, tag every entry with `userId`, and are viewable as formatted raw JSON directly in the dashboard.
+
+### Risk-Aware Approval Cards
+The chat UI renders visually distinct cards based on risk level — **yellow** for medium-risk step-up, **red** for high-risk re-authentication. The buttons trigger different flows accordingly.
 
 ---
 
@@ -82,8 +172,10 @@ You  →  Nexus AI  →  Auth0 Token Vault  →  Google / GitHub / Discord
 | Framework | Next.js 16 (App Router, TypeScript) |
 | Auth | Auth0 NextJS SDK v4 |
 | Token Vault | Auth0 AI SDK (`@auth0/ai`, `@auth0/ai-vercel`) |
+| Risk Engine | Custom `riskEngine()` — centralized decision layer |
 | AI Model | Google Gemini (via Vercel AI SDK v6) |
 | UI | Tailwind CSS v4, shadcn/ui, Framer Motion |
+| Audit Store | Persistent JSON file (`data/audit-log.json`) |
 | Deployment | Vercel |
 
 ---
@@ -91,13 +183,11 @@ You  →  Nexus AI  →  Auth0 Token Vault  →  Google / GitHub / Discord
 ## Getting Started
 
 ### Prerequisites
-
-- **Node.js 20+**
-- A free [Auth0 account](https://auth0.com/signup)
-- A free [Google Gemini API key](https://aistudio.google.com/apikey)
+- Node.js 20+
+- Free [Auth0 account](https://auth0.com/signup)
+- Free [Google Gemini API key](https://aistudio.google.com/apikey)
 
 ### 1. Clone & Install
-
 ```bash
 git clone https://github.com/amgaikwad4588/nexus-ai-agent.git
 cd nexus-ai-agent
@@ -107,62 +197,55 @@ npm install
 ### 2. Set Up Auth0
 
 **Create a Regular Web Application:**
-1. Go to [Auth0 Dashboard](https://manage.auth0.com) > Applications > Create Application
-2. Choose "Regular Web Application"
-3. Note your `Domain`, `Client ID`, and `Client Secret`
+1. [Auth0 Dashboard](https://manage.auth0.com) → Applications → Create Application → Regular Web Application
+2. Note your `Domain`, `Client ID`, `Client Secret`
+3. Set callback URLs:
+   - Allowed Callback URLs: `http://localhost:3000/auth/callback`
+   - Allowed Logout URLs: `http://localhost:3000`
+   - Allowed Web Origins: `http://localhost:3000`
+4. Advanced Settings → Grant Types → Enable **Token Vault**
 
-**Set Callback URLs** (under Application Settings):
-- Allowed Callback URLs: `http://localhost:3000/auth/callback`
-- Allowed Logout URLs: `http://localhost:3000`
-- Allowed Web Origins: `http://localhost:3000`
-
-**Enable Token Vault:**
-1. Go to Application > Advanced Settings > Grant Types
-2. Enable the "Token Vault" checkbox and save
-
-**Create a Machine-to-Machine App** (for Management API access):
-1. Applications > Create Application > Machine to Machine
-2. Authorize it for the Auth0 Management API
+**Create a Machine-to-Machine App** (for Management API):
+1. Applications → Create Application → Machine to Machine
+2. Authorize for Auth0 Management API
 3. Note the M2M `Client ID` and `Client Secret`
 
-**Set Up Social Connections:**
-- **Google**: Authentication > Social > Google — enable Gmail and Calendar scopes. Enable Connected Accounts + Token Vault.
-- **GitHub**: Authentication > Social > GitHub — enable `repo`, `read:user`, `read:org`. Enable Connected Accounts + Token Vault.
-- **Discord**: Authentication > Social > Discord — enable `identify`, `guilds`, `guilds.members.read`. Enable Connected Accounts + Token Vault.
-- **Slack**: Create a Slack App at [api.slack.com](https://api.slack.com) with bot scopes `channels:read`, `chat:write`, `channels:history`, `users:read`. Copy the Bot Token (`xoxb-...`).
+**Configure Social Connections with Token Vault:**
+- **Google**: Enable Gmail + Calendar scopes → Enable Connected Accounts + Token Vault
+- **GitHub**: Enable `repo`, `read:user`, `read:org` → Enable Connected Accounts + Token Vault
+- **Discord**: Enable `identify`, `guilds`, `guilds.members.read` → Enable Connected Accounts + Token Vault
+- **Slack**: Create a Slack App at [api.slack.com](https://api.slack.com) with scopes `channels:read`, `chat:write`, `channels:history`, `users:read` → Copy the Bot Token (`xoxb-...`)
 
-### 3. Configure Environment Variables
+### 3. Configure Environment
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Fill in your `.env.local`:
-
 ```env
-# Auth0 - Regular Web Application
+# Auth0 — Regular Web Application
 AUTH0_SECRET=<run: openssl rand -hex 32>
 AUTH0_DOMAIN=your-tenant.us.auth0.com
 AUTH0_CLIENT_ID=your_client_id
 AUTH0_CLIENT_SECRET=your_client_secret
 APP_BASE_URL=http://localhost:3000
 
-# Auth0 AI / Token Vault (M2M app)
+# Auth0 AI / Token Vault (M2M)
 AUTH0_AI_DOMAIN=your-tenant.us.auth0.com
 AUTH0_AI_CLIENT_ID=your_m2m_client_id
 AUTH0_AI_CLIENT_SECRET=your_m2m_client_secret
 
-# AI Provider
+# AI
 GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
 
-# Slack Bot Token
+# Slack
 SLACK_BOT_TOKEN=xoxb-your-bot-token
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### 4. Run It
+### 4. Run
 
 ```bash
 npm run dev
@@ -170,15 +253,13 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000), log in, connect your services, and start chatting.
 
-### 5. Deploy to Vercel
+### 5. Deploy
 
 ```bash
 npx vercel deploy
 ```
 
-Don't forget to:
-- Add all environment variables in your Vercel project settings
-- Update Auth0 callback URLs to include your Vercel production domain
+Add all environment variables in Vercel project settings and update Auth0 callback URLs to include your production domain.
 
 ---
 
@@ -191,20 +272,21 @@ src/
 │   ├── dashboard/
 │   │   ├── chat/page.tsx             # AI chat interface
 │   │   ├── connections/page.tsx      # Manage connected accounts
-│   │   ├── permissions/page.tsx      # View scopes & risk levels
-│   │   └── audit/page.tsx            # Real-time audit trail
+│   │   ├── permissions/page.tsx      # Scopes & risk levels
+│   │   └── audit/page.tsx            # Real-time audit trail + raw JSON
 │   └── api/
-│       ├── chat/route.ts             # AI chat endpoint
+│       ├── chat/route.ts             # AI chat endpoint (withRiskEngine)
 │       ├── connect/route.ts          # Connected Accounts flow
-│       ├── step-up/route.ts          # Step-up auth endpoint
+│       ├── step-up/route.ts          # Step-up approve/deny endpoint
 │       ├── connections/route.ts      # Connection status API
 │       └── audit/route.ts            # Audit log API
 ├── lib/
+│   ├── risk-engine.ts                # Centralized risk decision layer
 │   ├── auth0.ts                      # Auth0 client config
 │   ├── auth0-ai.ts                   # Token Vault setup
-│   ├── token-exchange.ts             # Manual token exchange for step-up
-│   ├── step-up.ts                    # Pending action store
-│   ├── audit.ts                      # Audit logging
+│   ├── token-exchange.ts             # Manual token exchange (post-approval)
+│   ├── step-up.ts                    # Pending action store + TTL
+│   ├── audit.ts                      # Persistent JSON audit logging
 │   └── tools/
 │       ├── google.ts                 # Gmail + Calendar (Token Vault)
 │       ├── github.ts                 # Repos, Issues, Profile (Token Vault)
@@ -212,37 +294,45 @@ src/
 │       └── discord.ts               # Profile, Guilds, Members (Token Vault)
 └── components/
     ├── landing/                      # Landing page
-    ├── dashboard/                    # Dashboard UI
+    ├── dashboard/                    # Dashboard UI + risk-aware cards
     └── ui/                           # shadcn/ui components
 ```
 
 ---
 
-## Security Model
+## Lessons Learned: The Auth0 Pain Point
 
-| Principle | How Nexus Implements It |
-|-----------|------------------------|
-| No raw credentials | Token Vault stores and manages all OAuth tokens |
-| Least privilege | Each tool requests only the scopes it needs |
-| Short-lived tokens | Refresh tokens are exchanged for temporary access tokens |
-| Risk classification | Every action is tagged low / medium / high / critical |
-| Step-up auth | Write operations require explicit user approval before executing |
-| Full audit trail | Every action logged with timestamp, scopes, and status |
-| Dual auth patterns | Token Vault for services with refresh tokens; Bot tokens for services without (Slack) |
+The single most confusing part of this build: **Auth0 "Login with Google" vs. Auth0 Connected Accounts are completely different things.**
+
+Standard social login gives your *app* a token scoped to Auth0. Token Vault requires Connected Accounts — a separate flow that stores the *user's* OAuth tokens in the Vault. If you configure the wrong one, Token Vault silently fails with no useful error message. I lost hours to this.
+
+**The fix:** Connected Accounts must be explicitly enabled per social connection in the Auth0 Dashboard, *and* Token Vault must be toggled on separately. They're independent settings. The docs don't make this clear.
+
+This is exactly the kind of developer experience gap that Token Vault needs to address before wider adoption.
+
+---
+
+## What's Next
+
+- **DPoP / Sender-Constrained Tokens** — Planned enhancement, skipped pre-launch to avoid destabilizing the Token Vault end-to-end flow
+- **Per-Tool Permission Toggles** — Let users selectively enable/disable individual tools, not just entire services
+- **High-Risk Tool Expansion** — Add delete operations with full REAUTH flow
+- **Multi-Tenant Support** — Bring Nexus to teams, not just individual users
 
 ---
 
 ## License
 
-Copyright (c) 2026 Aditya Gaikwad
+Copyright (c) 2026 Aditya Gaikwad. All rights reserved.
 
-All rights reserved.
-
-This source code is the proprietary property of the author.
-No part of this code may be used, copied, modified, or distributed
-without explicit permission from the author.
-
+This source code is the proprietary property of the author. No part of this code may be used, copied, modified, or distributed without explicit written permission from the author.
 
 ---
 
-Built with coffee, curiosity, and [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault).
+<div align="center">
+
+Built with obsession, coffee, and [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault).
+
+**[Star this repo](https://github.com/amgaikwad4588/nexus-ai-agent)** if Nexus made you feel safer about AI agents.
+
+</div>

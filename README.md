@@ -1,6 +1,6 @@
-<div align="center">
+<!-- <div align="center">
 
-<img src="https://raw.githubusercontent.com/amgaikwad4588/nexus-ai-agent/main/public/logo.png" alt="Nexus Logo" width="120" height="120" />
+<img src="https://raw.githubusercontent.com/amgaikwad4588/nexus-ai-agent/main/public/logo.png" alt="Nexus Logo" width="120" height="120" /> -->
 
 # Nexus
 

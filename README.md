@@ -311,10 +311,7 @@ This caused failures after approval.
 
 ## License
 
-Copyright (c) 2026 Aditya Gaikwad. All rights reserved.
-
-This source code is the proprietary property of the author. No part of this code may be used, copied, modified, or distributed without explicit written permission from the author.
-
+MIT
 ---
 
 <div align="center">

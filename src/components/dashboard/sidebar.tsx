@@ -89,16 +89,11 @@ export function Sidebar({ userName }: { userName?: string }) {
           className="h-7 w-7 shrink-0"
           onClick={() => setCollapsed(!collapsed)}
         >
-          <motion.span
-            whileHover={{ scale: 1.1, rotate: collapsed ? 0 : 180 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </motion.span>
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
         </Button>
       </div>
 

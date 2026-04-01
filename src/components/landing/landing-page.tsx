@@ -34,7 +34,7 @@ export function LandingPage() {
   return (
     <div className="min-h-screen overflow-hidden">
       {/* Dot Grid Background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-[#0f0f1a] via-[#12122a] to-[#0a0a14]">
+      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-[#0f0f1a] via-[#12122a] to-[#0a0a14] pointer-events-none">
         <DotGrid
           dotSize={3}
           gap={22}

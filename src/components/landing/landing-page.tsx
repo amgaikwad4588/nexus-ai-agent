@@ -18,7 +18,8 @@ import {
 import { Button } from "@/components/ui/button";
 import BlurText from "@/components/ui/blur-text";
 import DecryptedText from "@/components/ui/decrypted-text";
-import LightRays from "@/components/ui/light-rays";
+import TextType from "@/components/ui/text-type";
+import DotGrid from "@/components/ui/dot-grid";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -31,29 +32,24 @@ const stagger = {
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-        <div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-chart-2/10 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "2s" }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-chart-5/5 rounded-full blur-3xl"
-        />
-        {/* Grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(oklch(0.95 0 0) 1px, transparent 1px), linear-gradient(90deg, oklch(0.95 0 0) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-          }}
+    <div className="min-h-screen overflow-hidden">
+      {/* Dot Grid Background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-[#0f0f1a] via-[#12122a] to-[#0a0a14]">
+        <DotGrid
+          dotSize={3}
+          gap={22}
+          baseColor="#2d2d5a"
+          activeColor="#a5b4fc"
+          proximity={90}
+          shockRadius={140}
+          shockStrength={12}
+          resistance={550}
+          returnDuration={1.1}
         />
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/30 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
@@ -63,12 +59,12 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <a href="/auth/login">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-foreground/70 hover:text-foreground hover:bg-white/5">
                 Log in
               </Button>
             </a>
             <a href="/auth/login?screen_hint=signup">
-              <Button size="sm" className="glow">
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground border-0">
                 Get Started
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
@@ -84,22 +80,6 @@ export function LandingPage() {
         animate="visible"
         variants={stagger}
       >
-        <div className="absolute inset-0 -z-1">
-          <LightRays
-            raysOrigin="top-center"
-            raysColor="#ffffff"
-            raysSpeed={3}
-            lightSpread={1.3}
-            rayLength={3}
-            followMouse={true}
-            mouseInfluence={0.3}
-            noiseAmount={0}
-            distortion={0}
-            pulsating={false}
-            fadeDistance={1}
-            saturation={1}
-          />
-        </div>
         <div className="max-w-5xl mx-auto text-center">
           <motion.div variants={fadeUp} className="mb-6">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm font-medium text-muted-foreground">
@@ -132,14 +112,20 @@ export function LandingPage() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <a href="/auth/login?screen_hint=signup">
-              <Button size="lg" className="text-base px-8 glow-strong">
+              <Button size="lg" className="text-base px-10 bg-primary hover:bg-primary/90 text-primary-foreground border-0">
+                <Zap className="w-5 h-5 mr-2" />
                 Launch Nexus
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </a>
             <a href="#features">
-              <Button variant="outline" size="lg" className="text-base px-8">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-base px-8"
+              >
                 See How It Works
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </a>
           </motion.div>
@@ -149,7 +135,7 @@ export function LandingPage() {
             variants={fadeUp}
             className="mt-16 relative max-w-4xl mx-auto"
           >
-            <div className="glass rounded-2xl p-1 glow-strong">
+            <div className="glass rounded-2xl p-1 glow-terminal">
               <div className="bg-card rounded-xl overflow-hidden">
                 {/* Fake terminal header */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50">
@@ -158,40 +144,127 @@ export function LandingPage() {
                     <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
                     <div className="w-3 h-3 rounded-full bg-green-500/80" />
                   </div>
-                  <span className="text-xs text-muted-foreground ml-2 font-mono">
-                    Nexus AI Agent
-                  </span>
+                  <DecryptedText
+                    text="Nexus AI Agent"
+                    animateOn="view"
+                    speed={50}
+                    sequential
+                    revealDirection="start"
+                    className="text-xs text-muted-foreground ml-2 font-mono"
+                    encryptedClassName="text-xs text-muted-foreground/30 ml-2 font-mono"
+                  />
                 </div>
                 {/* Chat preview */}
                 <div className="p-6 space-y-4 font-mono text-sm">
                   <div className="flex gap-3">
-                    <span className="text-primary font-bold shrink-0">You:</span>
-                    <span className="text-foreground">
-                      Summarize my unread emails and post a digest to #general
-                      on Slack
-                    </span>
+                    <DecryptedText
+                      text="You:"
+                      animateOn="view"
+                      speed={40}
+                      sequential
+                      revealDirection="start"
+                      className="text-primary font-bold shrink-0"
+                      encryptedClassName="text-primary/40 font-bold shrink-0"
+                    />
+                    <DecryptedText
+                      text="Summarize my unread emails and post a digest to #general on Slack"
+                      animateOn="view"
+                      speed={50}
+                      sequential
+                      revealDirection="start"
+                      className="text-foreground"
+                      encryptedClassName="text-muted-foreground/40"
+                    />
                   </div>
                   <div className="flex gap-3">
-                    <span className="text-chart-2 font-bold shrink-0">Nexus:</span>
+                    <DecryptedText
+                      text="Nexus:"
+                      animateOn="view"
+                      speed={40}
+                      sequential
+                      revealDirection="start"
+                      className="text-chart-2 font-bold shrink-0"
+                      encryptedClassName="text-chart-2/40 font-bold shrink-0"
+                    />
                     <div className="text-muted-foreground">
                       <div className="flex items-center gap-2 mb-2">
                         <Lock className="w-3 h-3 text-primary" />
-                        <span className="text-xs text-primary">
-                          Using Token Vault: google-oauth2, slack
-                        </span>
+                        <DecryptedText
+                          text="Using Token Vault: google-oauth2, slack"
+                          animateOn="view"
+                          speed={45}
+                          sequential
+                          revealDirection="start"
+                          className="text-xs text-primary"
+                          encryptedClassName="text-xs text-primary/40"
+                        />
                       </div>
-                      <p>
-                        Found 4 unread emails. Posting summary to #general...
-                      </p>
-                      <div className="mt-2 pl-3 border-l-2 border-primary/30 text-xs">
-                        <p>1. Meeting invite from Sarah (Tomorrow 2pm)</p>
-                        <p>2. PR review request from @alex</p>
-                        <p>3. Weekly report due Friday</p>
-                        <p>4. New feature spec from Product</p>
+                      <DecryptedText
+                        text="Found 4 unread emails. Posting summary to #general..."
+                        animateOn="view"
+                        speed={50}
+                        sequential
+                        revealDirection="start"
+                        className="text-muted-foreground"
+                        encryptedClassName="text-muted-foreground/30"
+                      />
+                      <div className="mt-2 pl-3 border-l-2 border-primary/30 text-xs space-y-0.5">
+                        <div>
+                          <DecryptedText
+                            text="1. Meeting invite from Sarah (Tomorrow 2pm)"
+                            animateOn="view"
+                            speed={40}
+                            sequential
+                            revealDirection="start"
+                            className="text-muted-foreground"
+                            encryptedClassName="text-muted-foreground/30"
+                          />
+                        </div>
+                        <div>
+                          <DecryptedText
+                            text="2. PR review request from @alex"
+                            animateOn="view"
+                            speed={40}
+                            sequential
+                            revealDirection="start"
+                            className="text-muted-foreground"
+                            encryptedClassName="text-muted-foreground/30"
+                          />
+                        </div>
+                        <div>
+                          <DecryptedText
+                            text="3. Weekly report due Friday"
+                            animateOn="view"
+                            speed={40}
+                            sequential
+                            revealDirection="start"
+                            className="text-muted-foreground"
+                            encryptedClassName="text-muted-foreground/30"
+                          />
+                        </div>
+                        <div>
+                          <DecryptedText
+                            text="4. New feature spec from Product"
+                            animateOn="view"
+                            speed={40}
+                            sequential
+                            revealDirection="start"
+                            className="text-muted-foreground"
+                            encryptedClassName="text-muted-foreground/30"
+                          />
+                        </div>
                       </div>
-                      <p className="mt-2 text-green-400">
-                        Digest posted to #general successfully.
-                      </p>
+                      <div className="mt-2">
+                        <DecryptedText
+                          text="Digest posted to #general successfully."
+                          animateOn="view"
+                          speed={55}
+                          sequential
+                          revealDirection="start"
+                          className="text-green-400"
+                          encryptedClassName="text-green-400/30"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -216,23 +289,25 @@ export function LandingPage() {
       {/* Features Section */}
       <motion.section
         id="features"
-        className="py-24 px-6"
+        className="py-24 px-6 relative"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
         variants={stagger}
       >
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-blue-600/15 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-indigo-600/15 rounded-full blur-[80px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
+        </div>
         <div className="max-w-6xl mx-auto">
           <motion.div variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              <DecryptedText
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 flex justify-center">
+              <BlurText
                 text="Identity-First Agent Architecture"
-                animateOn="view"
-                speed={40}
-                sequential
-                revealDirection="center"
-                className="text-foreground"
-                encryptedClassName="text-muted-foreground/40"
+                animateBy="words"
+                direction="top"
+                className="text-foreground inline-block"
               />
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -289,12 +364,16 @@ export function LandingPage() {
               <motion.div
                 key={i}
                 variants={fadeUp}
-                className="glass rounded-xl p-6 hover:bg-accent/50 transition-colors group"
+                className="glass rounded-xl p-6 hover:bg-accent/50 transition-colors group cursor-pointer glow-card"
+                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                <feature.icon
-                  className={`w-10 h-10 ${feature.color} mb-4 group-hover:scale-110 transition-transform`}
-                />
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                <div className="mb-4 w-12 h-12 rounded-xl bg-accent/30 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                  <feature.icon
+                    className={`w-6 h-6 ${feature.color}`}
+                  />
+                </div>
+                <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   {feature.description}
                 </p>
@@ -314,8 +393,13 @@ export function LandingPage() {
       >
         <div className="max-w-5xl mx-auto">
           <motion.div variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              How Nexus Keeps You in Control
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 flex justify-center">
+              <BlurText
+                text="How Nexus Keeps You in Control"
+                animateBy="words"
+                direction="top"
+                className="text-foreground inline-block"
+              />
             </h2>
           </motion.div>
 
@@ -343,24 +427,65 @@ export function LandingPage() {
                 icons: [Eye, Shield, Activity],
               },
             ].map((item, i) => (
-              <motion.div key={i} variants={fadeUp} className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full glass text-primary font-bold text-sm mb-4">
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+              <motion.div 
+                key={i} 
+                variants={fadeUp} 
+                className="text-center group cursor-pointer"
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <motion.div 
+                  className="inline-flex items-center justify-center w-14 h-14 rounded-full glass text-primary font-bold text-lg mb-6 relative"
+                  whileHover={{ scale: 1.15, rotate: 10 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <motion.span
+                    animate={{ opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {item.step}
+                  </motion.span>
+                  <div className="absolute -inset-1 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.div>
+                <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
+                  <BlurText
+                    text={item.title}
+                    animateBy="words"
+                    direction="top"
+                    className="inline-block"
+                  />
+                </h3>
+                <motion.p 
+                  className="text-muted-foreground text-sm leading-relaxed mb-4"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  viewport={{ once: true }}
+                >
                   {item.description}
-                </p>
-                <div className="flex items-center justify-center gap-2">
+                </motion.p>
+                <div className="flex items-center justify-center gap-3">
                   {item.icons.map((Icon, j) => (
-                    <div
+                    <motion.div
                       key={j}
-                      className="w-8 h-8 rounded-lg glass flex items-center justify-center"
+                      className="w-10 h-10 rounded-lg glass flex items-center justify-center"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + j * 0.1 }}
+                      viewport={{ once: true }}
+                      whileHover={{ y: -4, scale: 1.15, rotate: 5 }}
                     >
-                      <Icon className="w-4 h-4 text-muted-foreground" />
-                    </div>
+                      <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </motion.div>
                   ))}
                 </div>
+                <motion.div
+                  className="mt-4 h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  viewport={{ once: true }}
+                />
               </motion.div>
             ))}
           </div>
@@ -387,9 +512,10 @@ export function LandingPage() {
             what it does. No black boxes.
           </p>
           <a href="/auth/login?screen_hint=signup">
-            <Button size="lg" className="text-base px-8">
+            <Button size="lg" className="text-base px-10 bg-primary hover:bg-primary/90 text-primary-foreground border-0">
+              <Zap className="w-5 h-5 mr-2" />
               Get Started Free
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </a>
         </motion.div>

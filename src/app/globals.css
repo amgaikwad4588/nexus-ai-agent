@@ -125,6 +125,10 @@
     @apply bg-background text-foreground text-[15px] leading-relaxed tracking-wide;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-image: 
+      radial-gradient(ellipse 100% 60% at 50% -10%, oklch(0.65 0.18 270 / 20%), transparent),
+      radial-gradient(ellipse 80% 50% at 90% 0%, oklch(0.65 0.18 320 / 12%), transparent),
+      radial-gradient(ellipse 60% 40% at 10% 80%, oklch(0.65 0.18 200 / 10%), transparent);
   }
   html {
     @apply font-sans;
@@ -149,6 +153,13 @@
   background: oklch(1 0 0 / 5%);
   backdrop-filter: blur(20px);
   border: 1px solid oklch(1 0 0 / 8%);
+}
+
+html:not(.dark) body {
+  background-image: 
+    radial-gradient(ellipse 100% 60% at 50% -10%, oklch(0.7 0.1 270 / 8%), transparent),
+    radial-gradient(ellipse 80% 50% at 90% 0%, oklch(0.7 0.1 320 / 5%), transparent),
+    radial-gradient(ellipse 60% 40% at 10% 80%, oklch(0.7 0.1 200 / 4%), transparent);
 }
 
 .gradient-text {
@@ -182,6 +193,14 @@
   box-shadow: 0 0 80px -20px oklch(0.65 0.2 270 / 40%);
 }
 
+.glow-terminal {
+  box-shadow: 0 0 120px -30px oklch(0.6 0.15 250 / 50%);
+}
+
+.glow-card {
+  box-shadow: 0 0 60px -15px oklch(0.6 0.15 250 / 25%);
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-20px); }
@@ -198,6 +217,15 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
 }
 
 /* Scrollbar */

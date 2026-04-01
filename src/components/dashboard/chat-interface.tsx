@@ -597,7 +597,12 @@ export function ChatInterface() {
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Send className="w-4 h-4" />
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9, rotate: -15 }}
+              >
+                <Send className="w-4 h-4" />
+              </motion.div>
             )}
           </Button>
         </form>

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DecryptedText from "@/components/ui/decrypted-text";
+import { CreativeToggle } from "@/components/ui/creative-toggle";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -482,46 +483,20 @@ export function PermissionsPage() {
                             <span className="text-[11px] text-muted-foreground hidden sm:inline">
                               Write
                             </span>
-                            <button
-                              onClick={() => toggleWriteAccess(service.id)}
-                              className="relative shrink-0 cursor-pointer"
-                              aria-label={`${writeAccess[service.id] ? "Disable" : "Enable"} write access for ${service.name}`}
-                            >
-                              <div
-                                className={`w-9 h-5 rounded-full transition-colors duration-200 ${
-                                  writeAccess[service.id]
-                                    ? "bg-yellow-500"
-                                    : "bg-zinc-700"
-                                }`}
-                              >
-                                <div
-                                  className={`w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-200 mt-0.5 ${
-                                    writeAccess[service.id]
-                                      ? "translate-x-4.5"
-                                      : "translate-x-0.5"
-                                  }`}
-                                />
-                              </div>
-                            </button>
-                          </div>
-                        )}
-                        <button
-                          onClick={() => toggleServiceAccess(service.id)}
-                          className="relative shrink-0 cursor-pointer"
-                          aria-label={`${serviceEnabled ? "Disable" : "Enable"} ${service.name} access`}
-                        >
-                          <div
-                            className={`w-11 h-6 rounded-full transition-colors duration-200 ${
-                              serviceEnabled ? "bg-emerald-500" : "bg-zinc-700"
-                            }`}
-                          >
-                            <div
-                              className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 mt-0.5 ${
-                                serviceEnabled ? "translate-x-5.5" : "translate-x-0.5"
-                              }`}
+                            <CreativeToggle
+                              checked={writeAccess[service.id]}
+                              onChange={() => toggleWriteAccess(service.id)}
+                              color="yellow"
+                              size="sm"
                             />
                           </div>
-                        </button>
+                        )}
+                        <CreativeToggle
+                          checked={serviceEnabled}
+                          onChange={() => toggleServiceAccess(service.id)}
+                          color="emerald"
+                          size="md"
+                        />
                       </div>
                     </div>
                   </CardHeader>
@@ -551,34 +526,19 @@ export function PermissionsPage() {
                               }`}
                             >
                               <div className="flex items-center gap-3">
-                                <button
-                                  onClick={() => toggleScope(scope.scope)}
-                                  disabled={isSaving || !serviceEnabled}
-                                  className="relative shrink-0 cursor-pointer disabled:cursor-not-allowed"
-                                  aria-label={`${enabled ? "Deny" : "Allow"} ${scope.scope}`}
-                                >
-                                  {isSaving ? (
-                                    <div className="w-11 h-6 flex items-center justify-center">
-                                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                                    </div>
-                                  ) : (
-                                    <div
-                                      className={`w-11 h-6 rounded-full transition-colors duration-200 ${
-                                        !serviceEnabled
-                                          ? "bg-zinc-800"
-                                          : enabled
-                                            ? "bg-emerald-500"
-                                            : "bg-zinc-700"
-                                      }`}
-                                    >
-                                      <div
-                                        className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 mt-0.5 ${
-                                          enabled ? "translate-x-5.5" : "translate-x-0.5"
-                                        }`}
-                                      />
-                                    </div>
-                                  )}
-                                </button>
+                                {isSaving ? (
+                                  <div className="w-11 h-6 flex items-center justify-center">
+                                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                                  </div>
+                                ) : (
+                                  <CreativeToggle
+                                    checked={enabled}
+                                    onChange={() => toggleScope(scope.scope)}
+                                    disabled={isSaving || !serviceEnabled}
+                                    color={!serviceEnabled ? "emerald" : enabled ? "emerald" : "red"}
+                                    size="md"
+                                  />
+                                )}
                                 <div
                                   className={`w-2 h-2 rounded-full ${
                                     !serviceEnabled

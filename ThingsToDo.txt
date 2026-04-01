@@ -1,58 +1,77 @@
-# Nexus - Things To Do & Status
+# Nexus - Hackathon Submission Status
 
-## Completed
+## Submission Requirements
+| Requirement | Status | Notes |
+|-------------|--------|-------|
+| Deployed project link | ❌ TODO | Deploy to Vercel |
+| 3-min demo video | ❌ TODO | Record and upload to YouTube |
+| Public code repo | ✅ Done | github.com/amgaikwad4588/nexus-ai-agent |
+| Text description | ❌ TODO | Write Devpost submission text |
 
-### DPoP (Demonstrating Proof of Possession) Implementation
-- [x] Created `src/lib/dpop.ts` - EC P-256 key pair generation using Web Crypto API
-- [x] Created `src/lib/base64.ts` - Base64url encoding helper
-- [x] Created `src/hooks/use-dpop.ts` - Client-side hook for DPoP operations
-- [x] Modified `src/lib/token-exchange.ts` - Includes DPoP-Signature header and dpop/dpop_jwk params
-- [x] Created test page at `/test-dpop` - Verified DPoP working correctly
-- [x] Build passes successfully
-- [x] **Enabled DPoP in Auth0 Dashboard** ✓
-- [x] **Implemented key rotation mechanism** ✓
-  - Auto-rotation every 24 hours (configurable)
-  - `isKeyExpired()`, `getKeyAge()`, `getTimeUntilRotation()`
-  - `rotateDPoPKey()`, `getValidDPoPKey()`, `clearDPoPKeys()`
-- [x] **Test DPoP binding on API calls** ✓
-  - Updated test page with full flow testing
-  - Tests key generation, proof creation, rotation
+---
 
-### Licensing Compliance
-- [x] Removed GSAP InertiaPlugin (paid Club GreenSock plugin)
-- [x] Implemented custom inertia effect using free GSAP easing (elastic.out)
+## Judging Criteria - Current Status
 
-### UI Improvements
-- [x] Dashboard gradient background
-- [x] CreativeToggle component with glow effects, spring animations
-- [x] Animated icons in sidebar (hover bounce, rotate)
-- [x] Landing page: DotGrid background with interactive mouse effects
-- [x] Blue/cyan background lights behind features section
-- [x] Feature card hover animations with BlurText titles
-- [x] Button enhancements with glow effects
-- [x] Navbar blending with dot grid theme
-- [x] Terminal preview glow shadow enhancement
-- [x] Feature card subtle glow shadows
+### 1. Security Model — ✅ Strong
+- ✅ Step-up auth for write operations
+- ✅ Centralized Risk Engine (EXECUTE/STEP_UP/REAUTH/BLOCK)
+- ✅ DPoP with auto-rotation (24h)
 
-## Working Features
+### 2. User Control — ✅ Medium-Strong
+- ✅ Approval workflow with step-up auth cards
+- ✅ Per-tool permission toggles
 
-### DPoP Implementation
-- Key pair generation (EC P-256) ✓
-- DPoP JWT proof creation with htm/htu/jti/iat/ath claims ✓
-- DPoP-Signature header format (RFC compliant) ✓
-- Session storage for key persistence ✓
-- Automatic key rotation (24h default) ✓
-- Manual rotation via `rotateDPoPKey()` ✓
-- Key age and expiration tracking ✓
+### 3. Technical Execution — ✅ Strong
+- ✅ Token Vault for GitHub, Google, Discord
+- ✅ Persistent audit log
 
-### UI Components
-- DotGrid background with mouse parallax effects (free GSAP only)
-- Animated icons with hover interactions
-- BlurText reveal animations
-- Glow effects on buttons and cards
+### 4. Insight Value — ✅ High
+- ✅ Pain points documented
+- ✅ Blog post for $250 bonus
 
-## Pending / Submission Ready
+---
 
-- [ ] Create demo video (3 min max)
-- [ ] Write Bonus Blog Post (~250 words)
-- [ ] Submit on Devpost
+## Services: 13 Tools (4 Services)
+
+| Service | Auth | Tools | Status |
+|---------|------|-------|--------|
+| Google | Token Vault | 2 | ✅ |
+| GitHub | Token Vault | 5 | ✅ |
+| Slack | Bot Token | 3 | ✅ |
+| Discord | Token Vault | 3 | ✅ |
+
+---
+
+## Implemented Features
+
+### Security
+- [x] DPoP (EC P-256, auto-rotation 24h)
+- [x] Risk Engine (low/medium/high/unknown)
+- [x] Step-up auth cards
+- [x] Persistent audit log
+
+### UI/UX
+- [x] DotGrid background (free GSAP)
+- [x] Animated icons
+- [x] BlurText animations
+- [x] Glow effects
+
+---
+
+## Remaining Tasks
+
+### High Priority
+- [ ] Deploy to Vercel
+- [ ] Record 3-min demo video
+- [ ] Write Devpost text description
+
+### Bonus
+- [ ] Blog Post (~250 words) — $250 prize
+
+---
+
+## Key Pitch
+
+**Problem:** "What happens when your AI agent sends a Slack message you didn't approve?"
+
+**Solution:** Nexus — risk-based authorization, step-up auth, re-auth for destructive actions, full audit trail.

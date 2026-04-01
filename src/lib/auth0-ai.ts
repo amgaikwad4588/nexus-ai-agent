@@ -4,9 +4,9 @@ import { auth0 } from "./auth0";
 export const auth0AI = new Auth0AI({
   auth0: {
     domain: process.env.AUTH0_AI_DOMAIN || process.env.AUTH0_DOMAIN!,
-    clientId: process.env.AUTH0_AI_CLIENT_ID || process.env.AUTH0_CLIENT_ID!,
+    clientId: process.env.AUTH0_M2M_CLIENT_ID || process.env.AUTH0_AI_CLIENT_ID || process.env.AUTH0_CLIENT_ID!,
     clientSecret:
-      process.env.AUTH0_AI_CLIENT_SECRET || process.env.AUTH0_CLIENT_SECRET!,
+      process.env.AUTH0_M2M_CLIENT_SECRET || process.env.AUTH0_AI_CLIENT_SECRET || process.env.AUTH0_CLIENT_SECRET!,
   },
 });
 

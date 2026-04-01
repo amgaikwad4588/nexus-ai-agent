@@ -17,6 +17,7 @@ const TOOL_PERMISSIONS: Record<string, ToolPermission> = {
   listGitHubRepos: { service: "github", requiredScopes: ["repo", "read:user"], accessType: "read" },
   getGitHubIssues: { service: "github", requiredScopes: ["repo"], accessType: "read" },
   createGitHubIssue: { service: "github", requiredScopes: ["repo"], accessType: "write" },
+  deleteGitHubRepo: { service: "github", requiredScopes: ["delete_repo"], accessType: "write" },
   getGitHubProfile: { service: "github", requiredScopes: ["read:user"], accessType: "read" },
   // Slack
   listSlackChannels: { service: "slack", requiredScopes: ["channels:read"], accessType: "read" },

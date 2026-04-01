@@ -246,11 +246,11 @@ export function AuditPage() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="max-h-125">
-                  <pre className="text-xs font-mono bg-black/40 rounded-lg p-4 overflow-x-auto whitespace-pre-wrap break-all">
+                <div className="max-h-125 overflow-auto rounded-lg">
+                  <pre className="text-xs font-mono bg-black/40 p-4 whitespace-pre-wrap break-all">
                     {JSON.stringify(entries, null, 2)}
                   </pre>
-                </ScrollArea>
+                </div>
               </CardContent>
             </Card>
           </motion.div>

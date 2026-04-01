@@ -104,19 +104,71 @@ export async function POST(req: Request) {
       );
     }
 
-    // Execute the approved action
-    const result = await executeAction(action.toolName, action.args, session, userId);
-    console.log("[step-up] executeAction result:", JSON.stringify(result));
+    // Execute the approved action with timeout + timing
+    const STEP_UP_TIMEOUT_MS = 30_000;
+    const execStart = performance.now();
+    let result: Record<string, unknown>;
+    try {
+      result = await Promise.race([
+        executeAction(action.toolName, action.args, session, userId),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("STEP_UP_TIMEOUT")), STEP_UP_TIMEOUT_MS)
+        ),
+      ]);
+    } catch (err) {
+      const execMs = Math.round(performance.now() - execStart);
+      const isTimeout = err instanceof Error && err.message === "STEP_UP_TIMEOUT";
+      addAuditEntry({
+        userId,
+        action: `Step-up execution ${isTimeout ? "timed out" : "crashed"}: ${action.description}`,
+        service: action.service,
+        scopes: [],
+        status: "failed",
+        details: isTimeout
+          ? `Execution exceeded ${STEP_UP_TIMEOUT_MS / 1000}s timeout (${execMs}ms elapsed)`
+          : `Unexpected error after ${execMs}ms: ${err instanceof Error ? err.message : "Unknown"}`,
+        riskLevel: action.riskLevel,
+        stepUpRequired: true,
+      });
+      markExecuted(actionId, { error: isTimeout ? "Timed out" : "Execution failed" });
+      return Response.json(
+        { status: "error", error: isTimeout ? "Operation timed out" : "Execution failed", timedOut: isTimeout },
+        { status: 504 }
+      );
+    }
+
+    const execMs = Math.round(performance.now() - execStart);
+    // Measure total approval latency (queued → executed)
+    const approvalLatencyMs = Math.round(
+      new Date().getTime() - new Date(action.createdAt).getTime()
+    );
+
+    console.log(`[step-up] ${action.toolName} executed in ${execMs}ms (approval latency: ${approvalLatencyMs}ms)`);
     markExecuted(actionId, result);
 
     if (result.error) {
+      addAuditEntry({
+        userId,
+        action: `Step-up execution failed: ${action.description}`,
+        service: action.service,
+        scopes: [],
+        status: "failed",
+        details: `API error after ${execMs}ms: ${String(result.error).slice(0, 200)}`,
+        riskLevel: action.riskLevel,
+        stepUpRequired: true,
+      });
       return Response.json(
         { status: "error", action: { ...action, status: "error" }, result },
         { status: 502 }
       );
     }
 
-    return Response.json({ status: "executed", action: { ...action, status: "executed" }, result });
+    return Response.json({
+      status: "executed",
+      action: { ...action, status: "executed" },
+      result,
+      metrics: { executionMs: execMs, approvalLatencyMs },
+    });
   } catch (error) {
     console.error("[step-up] Error:", error);
     return Response.json(
@@ -249,6 +301,45 @@ async function executeAction(
       channel: data.channel,
       timestamp: data.ts,
       message: message.slice(0, 100),
+    };
+  }
+
+  if (toolName === "deleteGitHubRepo") {
+    const { repo } = args as { repo: string; confirmName: string };
+
+    // ── Simulated deletion — does NOT actually delete ──
+    // Verifies the repo exists via GitHub API, then returns a simulated success.
+    // This demonstrates the full HIGH-risk flow (re-auth → approve → execute)
+    // without any destructive side effects.
+    const accessToken = await getAccessTokenForService("github", refreshToken);
+    if (!accessToken) return { error: "Failed to get GitHub access token" };
+
+    const repoCheck = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" },
+    });
+
+    if (!repoCheck.ok) {
+      return { error: `Repository "${repo}" not found` };
+    }
+
+    const repoData = await repoCheck.json();
+
+    addAuditEntry({
+      userId,
+      action: `[SIMULATED] Deleted GitHub repo ${repo}`,
+      service: "github",
+      scopes: ["delete_repo"],
+      status: "success",
+      details: `Simulated deletion of "${repo}" after re-authentication + step-up approval. No actual deletion performed.`,
+      riskLevel: "high",
+      stepUpRequired: true,
+    });
+
+    return {
+      simulated: true,
+      deleted: false,
+      repo: repoData.full_name,
+      message: `[SIMULATED] Repository "${repo}" would be deleted. No actual deletion was performed — this is a demo of the high-risk re-authentication flow.`,
     };
   }
 

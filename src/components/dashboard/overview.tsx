@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   MessageSquare,
@@ -12,11 +13,16 @@ import {
   GitBranch,
   KeyRound,
   Zap,
+  CheckCircle,
+  XCircle,
+  ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import type { AuditEntry } from "@/lib/types";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -34,6 +40,23 @@ export function DashboardOverview({
   userName: string;
   userAvatar?: string;
 }) {
+  const [auditStats, setAuditStats] = useState<{
+    total: number;
+    byStatus: Record<string, number>;
+    stepUpCount: number;
+  } | null>(null);
+  const [recentEntries, setRecentEntries] = useState<AuditEntry[]>([]);
+
+  useEffect(() => {
+    fetch("/api/audit")
+      .then((res) => res.json())
+      .then((data) => {
+        setAuditStats(data.stats || null);
+        setRecentEntries((data.entries || []).slice(0, 5));
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto">
       <motion.div
@@ -207,6 +230,76 @@ export function DashboardOverview({
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Audit Summary */}
+        {auditStats && auditStats.total > 0 && (
+          <motion.div variants={fadeUp}>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-orange-400" />
+                    Recent Activity
+                  </span>
+                  <Link href="/dashboard/audit">
+                    <Button variant="ghost" size="sm" className="text-xs">
+                      View all <ArrowRight className="w-3 h-3 ml-1" />
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Stats row */}
+                <div className="flex items-center gap-4 mb-4 text-xs">
+                  <span className="text-muted-foreground">
+                    <span className="font-semibold text-foreground">{auditStats.total}</span> total actions
+                  </span>
+                  <span className="flex items-center gap-1 text-green-400">
+                    <CheckCircle className="w-3 h-3" />
+                    {auditStats.byStatus.success || 0}
+                  </span>
+                  <span className="flex items-center gap-1 text-red-400">
+                    <XCircle className="w-3 h-3" />
+                    {auditStats.byStatus.failed || 0}
+                  </span>
+                  <span className="flex items-center gap-1 text-yellow-400">
+                    <ShieldAlert className="w-3 h-3" />
+                    {auditStats.stepUpCount} step-up
+                  </span>
+                </div>
+
+                {/* Recent entries */}
+                <div className="space-y-2">
+                  {recentEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-center justify-between p-2 rounded-md bg-accent/10 text-xs"
+                    >
+                      <span className="truncate flex-1 mr-2">{entry.action}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] ${
+                            entry.riskLevel === "low"
+                              ? "text-green-400 border-green-400/30"
+                              : entry.riskLevel === "medium"
+                              ? "text-yellow-400 border-yellow-400/30"
+                              : "text-red-400 border-red-400/30"
+                          }`}
+                        >
+                          {entry.riskLevel}
+                        </Badge>
+                        <span className="text-muted-foreground">
+                          {new Date(entry.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Get Started CTA */}
         <motion.div variants={fadeUp}>

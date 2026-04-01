@@ -4,11 +4,13 @@ import { setAIContext } from "@auth0/ai-vercel";
 import { auth0 } from "@/lib/auth0";
 import { checkToolPermission, logPermissionDenied } from "@/lib/permissions";
 import { evaluateRisk } from "@/lib/risk-engine";
+import { addAuditEntry } from "@/lib/audit";
 import { searchGmail, checkCalendar } from "@/lib/tools/google";
 import {
   listGitHubRepos,
   getGitHubIssues,
   createGitHubIssue,
+  deleteGitHubRepo,
   getGitHubProfile,
 } from "@/lib/tools/github";
 import {
@@ -62,8 +64,40 @@ function withRiskEngine<T extends Record<string, any>>(
         return { error: check.reason, permissionDenied: true };
       }
 
-      // ── Step 3: Execute (STEP_UP and REAUTH are handled inside each tool's execute) ──
-      return originalExecute(...args);
+      // ── Step 3: Execute with timeout + timing ──
+      const TOOL_TIMEOUT_MS = 30_000;
+      const start = performance.now();
+      try {
+        const result = await Promise.race([
+          originalExecute(...args),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("TOOL_TIMEOUT")), TOOL_TIMEOUT_MS)
+          ),
+        ]);
+        const ms = Math.round(performance.now() - start);
+        console.log(`[tool] ${toolName} completed in ${ms}ms`);
+        return result;
+      } catch (err) {
+        const ms = Math.round(performance.now() - start);
+        const isTimeout = err instanceof Error && err.message === "TOOL_TIMEOUT";
+        addAuditEntry({
+          action: `Tool ${isTimeout ? "timed out" : "failed"}: ${toolName}`,
+          service: "system",
+          scopes: [],
+          status: "failed",
+          details: isTimeout
+            ? `Tool "${toolName}" exceeded ${TOOL_TIMEOUT_MS / 1000}s timeout (${ms}ms elapsed)`
+            : `Tool "${toolName}" threw after ${ms}ms: ${err instanceof Error ? err.message : "Unknown error"}`,
+          riskLevel: riskEval.risk,
+          stepUpRequired: false,
+        });
+        return {
+          error: isTimeout
+            ? `Operation timed out after ${TOOL_TIMEOUT_MS / 1000} seconds. Please try again.`
+            : `Tool execution failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+          timedOut: isTimeout,
+        };
+      }
     },
   };
 }
@@ -91,6 +125,7 @@ export async function POST(req: Request) {
       listGitHubRepos,
       getGitHubIssues,
       createGitHubIssue,
+      deleteGitHubRepo,
       getGitHubProfile,
       listSlackChannels,
       sendSlackMessage,
@@ -114,7 +149,7 @@ export async function POST(req: Request) {
 
 Your capabilities:
 - **Google**: Search Gmail, check Google Calendar events and availability
-- **GitHub**: List repositories, view issues, create issues, get profile info
+- **GitHub**: List repositories, view issues, create issues, delete repositories (high-risk), get profile info
 - **Slack**: List channels, send messages, read channel history
 - **Discord**: View profile, list servers, check membership details
 

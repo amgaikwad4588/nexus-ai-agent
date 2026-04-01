@@ -266,6 +266,92 @@ export const createGitHubIssue = withGitHubAccess(
   })
 );
 
+export const deleteGitHubRepo = withGitHubAccess(
+  tool({
+    description:
+      "Delete a GitHub repository. This is a DESTRUCTIVE HIGH-RISK action that requires re-authentication. The action will be queued for user approval and identity re-verification before execution. IMPORTANT: The repo MUST be in 'owner/repo' format. If the user gives only a repo name, first call listGitHubRepos to find the correct full name.",
+    inputSchema: z.object({
+      repo: z.string().describe("Repository in 'owner/repo' format (e.g. 'amgaikwad4588/nexus-ai-agent'). MUST include the owner prefix."),
+      confirmName: z.string().describe("User must type the repo name to confirm deletion"),
+      userId: z.string().optional().describe("Auto-filled by system"),
+    }),
+    execute: async ({ repo, confirmName, userId }) => {
+      // ── Validate repo format ──
+      if (!repo.includes("/")) {
+        const accessToken = getAccessTokenFromTokenVault();
+        let suggestions: { fullName: string }[] = [];
+        try {
+          const res = await fetch(
+            `https://api.github.com/user/repos?per_page=100&sort=updated`,
+            { headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" } }
+          );
+          if (res.ok) {
+            const repos = await res.json();
+            suggestions = repos
+              .filter((r: { name: string }) => r.name.toLowerCase().includes(repo.toLowerCase()))
+              .slice(0, 5)
+              .map((r: { full_name: string }) => ({ fullName: r.full_name }));
+          }
+        } catch { /* best-effort */ }
+
+        return {
+          error: `Invalid repo format: "${repo}". Must be "owner/repo".`,
+          suggestions: suggestions.length > 0 ? suggestions : undefined,
+        };
+      }
+
+      // ── Verify confirmation matches repo name ──
+      const repoName = repo.split("/")[1];
+      if (confirmName !== repoName) {
+        return {
+          error: `Confirmation mismatch. You typed "${confirmName}" but the repo name is "${repoName}". Deletion aborted.`,
+          confirmationRequired: true,
+        };
+      }
+
+      // ── Verify repo exists ──
+      const accessToken = getAccessTokenFromTokenVault();
+      const repoCheck = await fetch(`https://api.github.com/repos/${repo}`, {
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github.v3+json" },
+      });
+
+      if (!repoCheck.ok) {
+        return { error: `Repository "${repo}" not found (404).` };
+      }
+
+      // ── Queue for step-up approval (HIGH risk = re-auth required) ──
+      const pendingAction = createPendingAction(
+        "deleteGitHubRepo",
+        { repo, confirmName },
+        userId || "unknown",
+        `DELETE repository ${repo} (destructive)`,
+        "github",
+        "high"
+      );
+
+      addAuditEntry({
+        action: `Re-auth required: Delete GitHub repo ${repo}`,
+        service: "github",
+        scopes: ["delete_repo"],
+        status: "pending_approval",
+        details: `Destructive operation queued: delete ${repo} — requires re-authentication`,
+        riskLevel: "high",
+        stepUpRequired: true,
+      });
+
+      return {
+        requiresApproval: true,
+        pendingActionId: pendingAction.id,
+        action: "deleteGitHubRepo",
+        description: `DELETE repository ${repo}`,
+        riskLevel: "high",
+        details: { repo, confirmName },
+        message: "⚠️ DESTRUCTIVE ACTION: This will permanently delete the repository. Re-authentication is required before execution.",
+      };
+    },
+  })
+);
+
 export const getGitHubProfile = withGitHubAccess(
   tool({
     description: "Get the authenticated user's GitHub profile information.",

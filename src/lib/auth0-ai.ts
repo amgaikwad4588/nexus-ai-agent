@@ -18,9 +18,15 @@ export function setRequestRefreshToken(token: string | undefined) {
 }
 
 async function getRefreshToken(): Promise<string | undefined> {
-  if (_requestRefreshToken) return _requestRefreshToken;
+  if (_requestRefreshToken) {
+    console.log("[auth0-ai] Using cached refresh token:", _requestRefreshToken.slice(0, 10) + "...");
+    return _requestRefreshToken;
+  }
+  console.log("[auth0-ai] No cached token, trying getSession...");
   const session = await auth0.getSession();
-  return session?.tokenSet.refreshToken;
+  const token = session?.tokenSet.refreshToken;
+  console.log("[auth0-ai] getSession result:", token ? token.slice(0, 10) + "..." : "NO TOKEN");
+  return token;
 }
 
 export const withGoogleAccess = auth0AI.withTokenVault({

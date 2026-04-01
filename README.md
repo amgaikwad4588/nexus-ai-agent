@@ -54,6 +54,7 @@ Nexus is built on three security pillars:
 The AI agent **never sees or stores raw OAuth tokens.** Auth0 Token Vault exchanges your stored refresh tokens for short-lived, scoped access tokens on demand. The app is blind to your credentials by design.
 
 ### 2. Centralized Risk Engine — Every Action Evaluated Before Execution
+All decisions are enforced server-side before token exchange
 Every single tool call passes through `riskEngine()` before anything executes:
 
 ```
@@ -300,18 +301,69 @@ src/
 
 ---
 
-## Lessons Learned: The Auth0 Pain Point
+## Lessons Learned: Real Pain Points
 
-The single most confusing part of this build: **Auth0 "Login with Google" vs. Auth0 Connected Accounts are completely different things.**
+### 1. Account Linking vs. Connected Accounts
+Auth0’s **Account Linking** and **Connected Accounts** sound similar but are fundamentally different.
 
-Standard social login gives your *app* a token scoped to Auth0. Token Vault requires Connected Accounts — a separate flow that stores the *user's* OAuth tokens in the Vault. If you configure the wrong one, Token Vault silently fails with no useful error message. I lost hours to this.
+- Account Linking → merges identities  
+- Connected Accounts → required for Token Vault  
 
-**The fix:** Connected Accounts must be explicitly enabled per social connection in the Auth0 Dashboard, *and* Token Vault must be toggled on separately. They're independent settings. The docs don't make this clear.
+Using the wrong flow caused Token Vault to fail silently.
 
-This is exactly the kind of developer experience gap that Token Vault needs to address before wider adoption.
+**Takeaway:** Token Vault only works with **Connected Accounts + explicit enablement**.
 
 ---
 
+### 2. Slack OAuth Limitation
+Slack OAuth does **not provide refresh tokens**, making Token Vault unusable.
+
+**Solution:** Switched to **Bot Token (`xoxb-`)** approach.
+
+**Insight:** Not all providers are compatible with Token Vault → leads to inconsistent auth patterns.
+
+---
+
+### 3. In-Memory Audit Logs
+Audit logs were initially stored in memory:
+- Lost on restart  
+- No traceability  
+
+**Fix:** Persistent JSON-based logging with:
+- `userId`, tool, risk, decision, timestamp  
+
+**Impact:** Improved **production readiness and accountability**.
+
+---
+
+### 4. DPoP Tradeoff
+DPoP (sender-constrained tokens) improves security but requires:
+- Tenant-level setup  
+- Risk of breaking working flow  
+
+**Decision:** Deferred for stability.
+
+**Insight:** Tradeoff between **advanced security vs system reliability**.
+
+---
+
+### 5. Natural Language vs API Requirements
+Users input:
+> create issue on nexus-ai-agent
+
+But GitHub requires:
+> owner/repo
+
+This caused failures after approval.
+
+**Fix:** Added **repo validation + suggestion before execution**.
+
+**Impact:** Better UX and fewer failed actions.
+
+---
+
+### Key Insight
+Building secure AI agents is not just about APIs — it’s about handling **OAuth inconsistencies, user behavior, and security tradeoffs**.
 ## What's Next
 
 - **DPoP / Sender-Constrained Tokens** — Planned enhancement, skipped pre-launch to avoid destabilizing the Token Vault end-to-end flow

@@ -23,6 +23,7 @@ import {
   getDiscordProfile,
   listDiscordGuilds,
   getDiscordGuildMember,
+  listDiscordChannels,
   sendDiscordMessage,
 } from "@/lib/tools/discord";
 
@@ -137,6 +138,7 @@ export async function POST(req: Request) {
       getDiscordProfile,
       listDiscordGuilds,
       getDiscordGuildMember,
+      listDiscordChannels,
       sendDiscordMessage,
     };
 

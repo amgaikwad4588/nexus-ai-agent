@@ -27,6 +27,7 @@ const TOOL_PERMISSIONS: Record<string, ToolPermission> = {
   getDiscordProfile: { service: "discord", requiredScopes: ["identify"], accessType: "read" },
   listDiscordGuilds: { service: "discord", requiredScopes: ["guilds"], accessType: "read" },
   getDiscordGuildMember: { service: "discord", requiredScopes: ["guilds.members.read"], accessType: "read" },
+  listDiscordChannels: { service: "discord", requiredScopes: ["bot"], accessType: "read" },
   sendDiscordMessage: { service: "discord", requiredScopes: ["bot"], accessType: "write" },
 };
 

@@ -55,6 +55,7 @@ const TOOL_RISK_MAP: Record<string, ToolRiskEntry> = {
   getDiscordProfile:      { risk: "low",    service: "discord", description: "Read Discord profile" },
   listDiscordGuilds:      { risk: "low",    service: "discord", description: "List Discord servers" },
   getDiscordGuildMember:  { risk: "low",    service: "discord", description: "Check guild membership" },
+  listDiscordChannels:    { risk: "low",    service: "discord", description: "List Discord channels" },
   sendDiscordMessage:     { risk: "medium", service: "discord", description: "Send message (write)" },
 
   // ── High-risk operations (destructive / bulk) ──

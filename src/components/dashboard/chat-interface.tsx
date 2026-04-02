@@ -41,6 +41,7 @@ const toolIcons: Record<string, { icon: typeof Mail; color: string; service: str
   getDiscordProfile: { icon: MessageSquare, color: "text-indigo-400", service: "Discord" },
   listDiscordGuilds: { icon: MessageSquare, color: "text-indigo-400", service: "Discord" },
   getDiscordGuildMember: { icon: MessageSquare, color: "text-indigo-400", service: "Discord" },
+  listDiscordChannels: { icon: MessageSquare, color: "text-indigo-400", service: "Discord" },
   sendDiscordMessage: { icon: MessageSquare, color: "text-indigo-400", service: "Discord" },
 };
 

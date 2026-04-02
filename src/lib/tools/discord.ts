@@ -98,6 +98,52 @@ export const listDiscordGuilds = withDiscordAccess(
   })
 );
 
+export const listDiscordChannels = tool({
+  description:
+    "List all text channels in a Discord server. Requires the bot to be a member of the server with View Channels permission.",
+  inputSchema: z.object({
+    guildId: z.string().describe("The Discord server (guild) ID"),
+  }),
+  execute: async ({ guildId }) => {
+    const botToken = getDiscordBotToken();
+
+    addAuditEntry({
+      action: `List Discord channels for guild ${guildId}`,
+      service: "discord",
+      scopes: ["bot"],
+      status: "success",
+      details: `Listed channels in guild ${guildId} via bot token`,
+      riskLevel: "low",
+      stepUpRequired: false,
+    });
+
+    const response = await fetch(
+      `https://discord.com/api/v10/guilds/${guildId}/channels`,
+      {
+        headers: { Authorization: `Bot ${botToken}` },
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      return { error: `Discord API error: ${response.status} - ${err}`, channels: [] };
+    }
+
+    const channels = await response.json();
+    const textChannels = channels
+      .filter((c: { type: number }) => c.type === 0)
+      .map((c: { id: string; name: string; position: number }) => ({
+        id: c.id,
+        name: c.name,
+      }));
+
+    return {
+      channels: textChannels,
+      serverId: guildId,
+    };
+  },
+});
+
 export const getDiscordGuildMember = withDiscordAccess(
   tool({
     description:

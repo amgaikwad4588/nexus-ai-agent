@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     setAIContext({ threadID });
     setRequestRefreshToken(session.tokenSet.refreshToken);
 
-    const model = google("gemini-2.5-flash");
+    const model = google("gemini-3.1-flash-lite-preview");
     const modelMessages = await convertToModelMessages(messages);
 
     // Wrap every tool with server-side permission enforcement

@@ -13,7 +13,6 @@ import {
   Mail,
   GitBranch,
   MessageSquare,
-  Calendar,
   Shield,
   ShieldAlert,
   ShieldCheck,
@@ -30,11 +29,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NexusLogo } from "@/components/nexus-logo";
+import { ClavisLogo } from "@/components/clavis-logo";
+import { CalendarIcon } from "@/components/icons/calendar-icon";
 
-const toolIcons: Record<string, { icon: typeof Mail; color: string; service: string }> = {
+type IconComponent = React.ComponentType<{ className?: string; strokeWidth?: number }>;
+
+const toolIcons: Record<string, { icon: IconComponent; color: string; service: string }> = {
   searchGmail: { icon: Mail, color: "text-[#DC2626]", service: "Google" },
-  checkCalendar: { icon: Calendar, color: "text-[#3B82F6]", service: "Google" },
+  checkCalendar: { icon: CalendarIcon, color: "text-[#3B82F6]", service: "Google" },
   listGitHubRepos: { icon: GitBranch, color: "text-[#FAFAFA]", service: "GitHub" },
   getGitHubIssues: { icon: GitBranch, color: "text-[#FAFAFA]", service: "GitHub" },
   createGitHubIssue: { icon: GitBranch, color: "text-[#F97316]", service: "GitHub" },
@@ -332,7 +334,7 @@ type FlowKind =
 
 interface ComposeTarget {
   flow: FlowKind;
-  // Human label shown in the form header, e.g. "amgaikwad4588/nexus-ai-"
+  // Human label shown in the form header, e.g. "amgaikwad4588/clavis-ai-"
   label: string;
   // The identifier the final command should reference (repo full_name / channel name / id)
   ref: string;
@@ -591,10 +593,10 @@ export function ChatInterface() {
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#262626] flex items-center gap-3">
         <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center">
-          <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
+          <ClavisLogo className="w-7 h-7 text-[#FF3D00]" />
         </div>
         <div>
-          <h1 className="font-semibold text-sm tracking-tight">Nexus AI Agent</h1>
+          <h1 className="font-semibold text-sm tracking-tight">Clavis AI Agent</h1>
           <p className="text-xs text-[#737373]">
             Connected to Google, GitHub, Slack &amp; Discord via Token Vault
           </p>
@@ -613,15 +615,15 @@ export function ChatInterface() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
+              className="text-center py-6"
             >
-              <div className="w-16 h-16 bg-[#0A0A0A] flex items-center justify-center mx-auto mb-6">
-                <NexusLogo className="w-14 h-14 text-[#FF3D00]" />
+              <div className="w-16 h-16 bg-[#0A0A0A] flex items-center justify-center mx-auto mb-4">
+                <ClavisLogo className="w-14 h-14 text-[#FF3D00]" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight mb-3">
                 What can I help you with?
               </h2>
-              <p className="text-sm text-[#737373] max-w-md mx-auto mb-10">
+              <p className="text-sm text-[#737373] max-w-md mx-auto mb-8">
                 I can access your Gmail, Google Calendar, GitHub repos, Slack
                 channels, and Discord servers. Every action is scoped and
                 audited.
@@ -673,14 +675,14 @@ export function ChatInterface() {
                 {message.role === "user" ? (
                   <User className="w-4 h-4 text-[#737373]" strokeWidth={1.5} />
                 ) : (
-                  <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
+                  <ClavisLogo className="w-7 h-7 text-[#FF3D00]" />
                 )}
               </div>
 
               {/* Content */}
               <div className="flex-1 space-y-2">
                 <div className="text-xs font-medium text-[#737373] uppercase tracking-wider">
-                  {message.role === "user" ? "You" : "Nexus"}
+                  {message.role === "user" ? "You" : "Clavis"}
                 </div>
 
                 {/* Message parts */}
@@ -958,7 +960,7 @@ export function ChatInterface() {
               className="flex items-center gap-2 text-xs text-[#737373]"
             >
               <Loader2 className="w-3 h-3 animate-spin" />
-              Nexus is thinking...
+              Clavis is thinking...
             </motion.div>
           )}
         </div>
@@ -989,7 +991,7 @@ export function ChatInterface() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Nexus anything... (e.g., 'Check my unread emails')"
+              placeholder="Ask Clavis anything... (e.g., 'Check my unread emails')"
               className="min-h-12 max-h-30 resize-none pr-12 text-sm"
               rows={1}
             />

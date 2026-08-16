@@ -1,8 +1,8 @@
 <!-- <div align="center">
 
-<img src="https://raw.githubusercontent.com/amgaikwad4588/nexus-ai-agent/main/public/logo.png" alt="Nexus Logo" width="120" height="120" /> -->
+<img src="https://raw.githubusercontent.com/amgaikwad4588/nexus-ai-agent/main/public/logo.png" alt="Clavis Logo" width="120" height="120" /> -->
 
-# Nexus
+# Clavis
 
 ### **Your AI Agent. Securely Connected. Always In Control.**
 
@@ -25,7 +25,7 @@
 
 One sentence. Four services. Zero passwords exposed.
 
-**Nexus** is an AI-powered command center that lets you control Google, GitHub, Slack, and Discord through plain English — while [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault) handles every credential with zero raw token exposure. Every action passes through a **centralized risk engine** that decides in real time: auto-execute, require step-up approval, demand re-authentication, or block entirely.
+**Clavis** is an AI-powered command center that lets you control Google, GitHub, Slack, and Discord through plain English — while [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault) handles every credential with zero raw token exposure. Every action passes through a **centralized risk engine** that decides in real time: auto-execute, require step-up approval, demand re-authentication, or block entirely.
 
 Built for the [**Authorized to Act: Auth0 for AI Agents Hackathon 2026**](https://authorizedtoact.devpost.com/).
 
@@ -38,7 +38,7 @@ AI agents are powerful, but giving them access to your accounts is terrifying. M
 
 ## Our Solution
 
-Nexus solves this by putting **Auth0 Token Vault** at the center of every interaction:
+Clavis solves this by putting **Auth0 Token Vault** at the center of every interaction:
 
 - The AI agent **never sees or stores raw credentials**. Token Vault exchanges scoped, short-lived access tokens on demand.
 - Every action is **logged in a real-time audit trail** — you can see exactly what API was called, with what scopes, and when.
@@ -49,9 +49,9 @@ The result: an AI agent you can actually trust.
 
 ---
 
-## What Nexus Can Do
+## What Clavis Can Do
 
-Talk to Nexus like you'd talk to a colleague:
+Talk to Clavis like you'd talk to a colleague:
 
 > *"Summarize my unread emails and post a digest to #general on Slack"*
 
@@ -61,7 +61,7 @@ Talk to Nexus like you'd talk to a colleague:
 
 > *"Show my Discord servers and check my roles"*
 
-Under the hood, Nexus has **12 tools** across 4 services:
+Under the hood, Clavis has **12 tools** across 4 services:
 
 | Tool | Service | What It Does | Risk | Auth Method |
 |------|---------|-------------|------|-------------|
@@ -85,13 +85,13 @@ Medium-risk (write) operations trigger step-up authentication before executing.
 ## How It Works
 
 ```
-You  →  Nexus AI  →  Auth0 Token Vault  →  Google / GitHub / Discord
+You  →  Clavis AI  →  Auth0 Token Vault  →  Google / GitHub / Discord
                          ↓                         ↓
                    Audit Trail logged        Slack (Bot Token)
 ```
 
 1. **Connect** your Google, GitHub, and Discord accounts through Auth0 Connected Accounts. Tokens go straight to the Vault — our app never sees them. Slack connects via a workspace bot token.
-2. **Chat** with Nexus in natural language. It figures out which tools and services are needed.
+2. **Chat** with Clavis in natural language. It figures out which tools and services are needed.
 3. **Token Vault** exchanges your stored refresh tokens for short-lived, scoped access tokens — just enough permission to do the job.
 4. **Step-up auth** kicks in for write operations — the agent queues the action and waits for your explicit approval before executing.
 5. **Actions execute** against the real APIs, and every step is logged in the audit trail.
@@ -239,7 +239,7 @@ src/
 
 ## Security Model
 
-| Principle | How Nexus Implements It |
+| Principle | How Clavis Implements It |
 |-----------|------------------------|
 | No raw credentials | Token Vault stores and manages all OAuth tokens |
 | Least privilege | Each tool requests only the scopes it needs |
@@ -318,6 +318,6 @@ MIT
 
 Built with obsession, coffee, and [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault).
 
-**[Star this repo](https://github.com/amgaikwad4588/nexus-ai-agent)** if Nexus made you feel safer about AI agents.
+**[Star this repo](https://github.com/amgaikwad4588/nexus-ai-agent)** if Clavis made you feel safer about AI agents.
 
 </div>

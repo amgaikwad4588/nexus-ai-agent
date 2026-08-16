@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import {
   Shield,
-  Zap,
   Eye,
   GitBranch,
   Mail,
@@ -15,7 +14,8 @@ import {
   KeyRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NexusLogo } from "@/components/nexus-logo";
+import { ClavisLogo } from "@/components/clavis-logo";
+import { AtomIcon } from "@/components/icons/atom-icon";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -34,21 +34,13 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center">
-              <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
+              <ClavisLogo className="w-7 h-7 text-[#FF3D00]" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">Nexus</span>
+            <span className="text-lg font-semibold tracking-tight">Clavis</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="/auth/login">
-              <Button variant="ghost" size="sm">
-                Log in
-              </Button>
-            </a>
-            <a href="/auth/login?screen_hint=signup">
-              <Button variant="primary" size="sm">
-                Get Started
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+            <a href="/auth/login" className="fancy-btn">
+              <span>Log in</span>
             </a>
           </div>
         </div>
@@ -63,7 +55,7 @@ export function LandingPage() {
       >
         <div className="max-w-7xl mx-auto text-center">
           <motion.div variants={fadeInUp} className="mb-8">
-            <span className="uppercase text-xs font-medium tracking-widest text-[#737373]">
+            <span className="text-shine uppercase text-xs font-bold tracking-widest">
               Powered by Auth0 Token Vault
             </span>
           </motion.div>
@@ -83,7 +75,7 @@ export function LandingPage() {
             variants={fadeInUp}
             className="text-lg md:text-xl text-[#737373] max-w-2xl mx-auto mb-12 leading-relaxed"
           >
-            Nexus is an AI command center that connects to Google, GitHub, and
+            Clavis is an AI command center that connects to Google, GitHub, and
             Slack through Auth0 Token Vault. Full transparency. Complete
             control. Zero exposed credentials.
           </motion.p>
@@ -92,13 +84,6 @@ export function LandingPage() {
             variants={fadeInUp}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <a href="/auth/login?screen_hint=signup">
-              <Button variant="primary" size="lg">
-                <Zap className="w-5 h-5" />
-                Launch Nexus
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </a>
             <a href="#features">
               <Button variant="outline" size="lg">
                 See How It Works
@@ -176,7 +161,7 @@ export function LandingPage() {
                   "See exactly which APIs are called, with what scopes, and when. A real-time permission dashboard shows everything.",
               },
               {
-                icon: Zap,
+                icon: AtomIcon,
                 title: "Cross-Service Orchestration",
                 description:
                   "Chain actions across Google, GitHub, and Slack in a single command. Each service uses its own scoped token.",
@@ -229,7 +214,7 @@ export function LandingPage() {
               Process
             </span>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tighter">
-              How Nexus Keeps You in Control
+              How Clavis Keeps You in Control
             </h2>
           </motion.div>
 
@@ -246,7 +231,7 @@ export function LandingPage() {
                 step: "02",
                 title: "Chat With Your Agent",
                 description:
-                  "Tell Nexus what you need in natural language. It plans the actions and shows you exactly what it will do.",
+                  "Tell Clavis what you need in natural language. It plans the actions and shows you exactly what it will do.",
                 icons: [Sparkles],
               },
               {
@@ -312,7 +297,7 @@ export function LandingPage() {
 
       {/* CTA Section - Inverted */}
       <motion.section
-        className="py-24 px-6 bg-[#FAFAFA] text-[#0A0A0A]"
+        className="py-24 px-6 bg-[#FAFAFA] text-[#0A0A0A] border-t border-[#E5E5E5]"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -331,7 +316,6 @@ export function LandingPage() {
           </p>
           <a href="/auth/login?screen_hint=signup">
             <Button variant="primary" size="lg">
-              <Zap className="w-5 h-5" />
               Get Started Free
               <ArrowRight className="w-5 h-5" />
             </Button>

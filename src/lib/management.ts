@@ -29,7 +29,7 @@ export async function getMyAccountToken(
 
   if (!res.ok) {
     const err = await res.text();
-    console.error("[Nexus] Failed to get My Account API token:", res.status, err);
+    console.error("[Clavis] Failed to get My Account API token:", res.status, err);
     throw new Error(`Failed to get My Account API token: ${res.status}`);
   }
 

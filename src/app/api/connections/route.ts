@@ -75,20 +75,20 @@ export async function GET() {
       const data = await res.json();
       connectedAccounts = data.connected_accounts || data || [];
       console.log(
-        "[Nexus] Connected accounts:",
+        "[Clavis] Connected accounts:",
         JSON.stringify(
           connectedAccounts.map((a) => `${a.connection} (${a.id})`)
         )
       );
     } else {
       console.log(
-        "[Nexus] Management API error fetching connected accounts:",
+        "[Clavis] Management API error fetching connected accounts:",
         res.status,
         await res.text()
       );
     }
   } catch (err) {
-    console.log("[Nexus] Failed to fetch connected accounts:", err);
+    console.log("[Clavis] Failed to fetch connected accounts:", err);
   }
 
   const services = SERVICES.map((service) => {

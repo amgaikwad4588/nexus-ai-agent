@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   MessageSquare,
   Link2,
-  Shield,
   Activity,
   LayoutDashboard,
   LogOut,
@@ -13,7 +12,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NexusLogo } from "@/components/nexus-logo";
+import { ClavisLogo } from "@/components/clavis-logo";
+import { VerifiedIcon } from "@/components/icons/verified-icon";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -36,7 +36,7 @@ const navItems = [
   {
     href: "/dashboard/permissions",
     label: "Permissions",
-    icon: Shield,
+    icon: VerifiedIcon,
   },
   {
     href: "/dashboard/audit",
@@ -60,10 +60,10 @@ export function Sidebar({ userName }: { userName?: string }) {
       <div className="h-16 flex items-center px-4 border-b border-[#262626] justify-between">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center shrink-0">
-            <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
+            <ClavisLogo className="w-7 h-7 text-[#FF3D00]" />
           </div>
           {!collapsed && (
-            <span className="text-lg font-semibold tracking-tight">Nexus</span>
+            <span className="text-lg font-semibold tracking-tight">Clavis</span>
           )}
         </Link>
         <Button

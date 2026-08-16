@@ -12,7 +12,7 @@ export interface DPoPProof {
   header: string;
 }
 
-const STORAGE_KEY = "nexus_dpop_key";
+const STORAGE_KEY = "clavis_dpop_key";
 const DEFAULT_ROTATION_PERIOD_MS = 24 * 60 * 60 * 1000;
 
 export function setRotationPeriod(ms: number): void {

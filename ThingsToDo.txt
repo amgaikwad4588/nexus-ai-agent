@@ -1,4 +1,4 @@
-# Nexus - Hackathon Submission Status
+# Clavis - Hackathon Submission Status
 
 ## Submission Requirements
 | Requirement | Status | Notes |
@@ -90,4 +90,4 @@ On Vercel, `auth0.getSession()` (which reads cookies via `next/headers`) **retur
 
 **Problem:** "What happens when your AI agent sends a Slack message you didn't approve?"
 
-**Solution:** Nexus — risk-based authorization, step-up auth, re-auth for destructive actions, full audit trail.
+**Solution:** Clavis — risk-based authorization, step-up auth, re-auth for destructive actions, full audit trail.

@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
 /**
- * Nexus brand mark — a simplified starburst (16 tapered rays around a hub).
+ * Clavis brand mark — a simplified starburst (16 tapered rays around a hub).
  * Far fewer, bolder rays than the original so it stays crisp at small sizes.
  * Uses `currentColor` for the fill so callers control color via text color
  * (e.g. `text-[#FF3D00]`). Sized via `className` (defaults to w-4 h-4).
@@ -38,7 +38,7 @@ function buildRays(): string {
 
 const RAYS_PATH = buildRays();
 
-export function NexusLogo({ className = "w-4 h-4", ...props }: SVGProps<SVGSVGElement>) {
+export function ClavisLogo({ className = "w-4 h-4", ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 48 48"

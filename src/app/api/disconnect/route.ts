@@ -42,17 +42,17 @@ export async function POST(request: Request) {
 
     if (!deleteRes.ok && deleteRes.status !== 204) {
       const err = await deleteRes.text();
-      console.error("[Nexus] Failed to delete connected account:", deleteRes.status, err);
+      console.error("[Clavis] Failed to delete connected account:", deleteRes.status, err);
       return NextResponse.json(
         { error: "Failed to disconnect account" },
         { status: 500 }
       );
     }
 
-    console.log(`[Nexus] Disconnected account: ${accountId}`);
+    console.log(`[Clavis] Disconnected account: ${accountId}`);
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[Nexus] Disconnect error:", err);
+    console.error("[Clavis] Disconnect error:", err);
     return NextResponse.json(
       { error: "Failed to disconnect account" },
       { status: 500 }

@@ -154,7 +154,7 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json();
     const userId = session.user.sub;
-    const threadID = `nexus-${userId}-${Date.now()}`;
+    const threadID = `clavis-${userId}-${Date.now()}`;
 
     // ── Domain guard: block off-topic messages BEFORE the expensive LLM call ──
     // Extract the latest user message's text (UI messages carry `parts`).
@@ -212,7 +212,7 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model,
-      system: `You are Nexus, a powerful AI agent that helps users manage their digital life across Google, GitHub, and Slack. You have secure access to the user's connected services through Auth0 Token Vault.
+      system: `You are Clavis, a powerful AI agent that helps users manage their digital life across Google, GitHub, and Slack. You have secure access to the user's connected services through Auth0 Token Vault.
 
 Your capabilities:
 - **Google**: Search Gmail, check Google Calendar events and availability

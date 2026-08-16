@@ -236,7 +236,7 @@ export function AuditPage() {
                   <Activity className="w-10 h-10 text-[#262626] mx-auto mb-3" strokeWidth={1.5} />
                   <p className="text-sm text-[#737373]">No audit entries yet</p>
                   <p className="text-xs text-[#737373]/60 mt-1">
-                    Start chatting with Nexus to see activity here
+                    Start chatting with Clavis to see activity here
                   </p>
                 </div>
               ) : (

@@ -18,6 +18,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { DotsLoader } from "@/components/ui/dots-loader";
 import { CreativeToggle } from "@/components/ui/creative-toggle";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -168,7 +169,7 @@ export function PermissionsPage() {
   const [serviceAccess, setServiceAccess] = useState<Record<string, boolean>>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem("nexus:serviceAccess");
+        const saved = localStorage.getItem("clavis:serviceAccess");
         if (saved) return JSON.parse(saved);
       } catch {}
     }
@@ -177,7 +178,7 @@ export function PermissionsPage() {
   const [writeAccess, setWriteAccess] = useState<Record<string, boolean>>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem("nexus:writeAccess");
+        const saved = localStorage.getItem("clavis:writeAccess");
         if (saved) return JSON.parse(saved);
       } catch {}
     }
@@ -185,11 +186,11 @@ export function PermissionsPage() {
   });
 
   useEffect(() => {
-    localStorage.setItem("nexus:serviceAccess", JSON.stringify(serviceAccess));
+    localStorage.setItem("clavis:serviceAccess", JSON.stringify(serviceAccess));
   }, [serviceAccess]);
 
   useEffect(() => {
-    localStorage.setItem("nexus:writeAccess", JSON.stringify(writeAccess));
+    localStorage.setItem("clavis:writeAccess", JSON.stringify(writeAccess));
   }, [writeAccess]);
 
   const toggleServiceAccess = (id: string) => {
@@ -358,8 +359,7 @@ export function PermissionsPage() {
         {/* Service Permissions */}
         {loading ? (
           <motion.div variants={fadeUp} className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-[#737373]" />
-            <span className="ml-2 text-sm text-[#737373]">Loading permissions...</span>
+            <DotsLoader label="Loading permissions..." />
           </motion.div>
         ) : (
           servicePermissions.map((service) => {
@@ -527,7 +527,7 @@ export function PermissionsPage() {
                   {
                     step: "1",
                     title: "User Request",
-                    desc: "You ask Nexus to perform an action",
+                    desc: "You ask Clavis to perform an action",
                   },
                   {
                     step: "2",

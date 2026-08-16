@@ -10,14 +10,13 @@ import {
   ArrowRight,
   Mail,
   KeyRound,
-  Zap,
   CheckCircle,
   ShieldAlert,
   Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { NexusLogo } from "@/components/nexus-logo";
+import { ClavisLogo } from "@/components/clavis-logo";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { fadeUp, stagger } from "@/components/dashboard/motion";
@@ -201,7 +200,7 @@ export function DashboardOverview({
                 <ArrowRight className="w-4 h-4 text-[#262626]" />
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 border border-[#262626] flex items-center justify-center">
-                    <NexusLogo className="w-8 h-8 text-[#FF3D00]" />
+                    <ClavisLogo className="w-8 h-8 text-[#FF3D00]" />
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-[#262626]" />
@@ -293,9 +292,6 @@ export function DashboardOverview({
         <motion.div variants={fadeUp}>
           <div className="border border-[#262626] bg-[#0F0F0F] h-full flex flex-col">
             <div className="p-6 flex-1">
-              <div className="w-12 h-12 border border-[#262626] flex items-center justify-center mb-4">
-                <Zap className="w-6 h-6 text-[#FF3D00]" strokeWidth={1.5} />
-              </div>
               <h3 className="font-semibold text-lg tracking-tight mb-2">Ready to get started?</h3>
               <p className="text-sm text-[#737373]">
                 Connect your services and start chatting with your AI agent for secure, scoped access.

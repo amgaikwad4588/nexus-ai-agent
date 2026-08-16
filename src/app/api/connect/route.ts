@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   const refreshToken = session.tokenSet.refreshToken;
   if (!refreshToken) {
-    console.error("[Nexus] No refresh token in session — cannot initiate Connected Accounts flow");
+    console.error("[Clavis] No refresh token in session — cannot initiate Connected Accounts flow");
     return NextResponse.redirect(
       new URL("/dashboard/connections?error=no_refresh_token", req.url)
     );
@@ -48,8 +48,8 @@ export async function GET(req: Request) {
       state: crypto.randomUUID(),
       scopes: CONNECTION_SCOPES[connection] || [],
     };
-    console.log("[Nexus] Connect initiate payload:", JSON.stringify(connectPayload));
-    console.log("[Nexus] My Account token prefix:", myAccountToken?.slice(0, 20));
+    console.log("[Clavis] Connect initiate payload:", JSON.stringify(connectPayload));
+    console.log("[Clavis] My Account token prefix:", myAccountToken?.slice(0, 20));
 
     const connectRes = await fetch(
       `https://${domain}/me/v1/connected-accounts/connect`,
@@ -65,18 +65,18 @@ export async function GET(req: Request) {
 
     if (!connectRes.ok) {
       const err = await connectRes.text();
-      console.error("[Nexus] Connected Accounts initiate failed:", connectRes.status, err);
+      console.error("[Clavis] Connected Accounts initiate failed:", connectRes.status, err);
       return NextResponse.redirect(
         new URL("/dashboard/connections?error=connect_failed", req.url)
       );
     }
 
     const connectData = await connectRes.json();
-    console.log("[Nexus] Connect response:", JSON.stringify(connectData));
+    console.log("[Clavis] Connect response:", JSON.stringify(connectData));
 
     // Store auth_session in a cookie for verification during the complete step
     const cookieStore = await cookies();
-    cookieStore.set("nexus_auth_session", connectData.auth_session, {
+    cookieStore.set("clavis_auth_session", connectData.auth_session, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -92,7 +92,7 @@ export async function GET(req: Request) {
 
     return NextResponse.redirect(connectUrl.toString());
   } catch (err) {
-    console.error("[Nexus] Connected Accounts error:", err);
+    console.error("[Clavis] Connected Accounts error:", err);
     return NextResponse.redirect(
       new URL("/dashboard/connections?error=connect_error", req.url)
     );

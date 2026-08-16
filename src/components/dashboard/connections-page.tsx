@@ -204,7 +204,7 @@ export function ConnectionsPage() {
                 </p>
                 <p className="text-xs text-[#737373] mt-1">
                   Your OAuth tokens are stored securely in Auth0&apos;s Token
-                  Vault. Nexus exchanges scoped tokens on-demand and never
+                  Vault. Clavis exchanges scoped tokens on-demand and never
                   stores raw credentials. You can revoke access at any time.
                 </p>
               </div>

@@ -2,7 +2,7 @@ import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 
 /**
- * Domain guard — keeps Nexus scoped to its actual capabilities
+ * Domain guard — keeps Clavis scoped to its actual capabilities
  * (Gmail, Google Calendar, GitHub, Slack, Discord) so users can't use it as a
  * free general-purpose chatbot and burn Gemini tokens.
  *
@@ -30,12 +30,12 @@ const DOMAIN_KEYWORDS: string[] = [
   "slack", "channel", "channels", "workspace", "dm",
   // Discord
   "discord", "server", "servers", "guild", "guilds", "member",
-  // Cross-cutting actions Nexus supports
+  // Cross-cutting actions Clavis supports
   "send", "send message", "post", "create issue", "raise issue",
   "list", "show", "check", "read", "history", "profile", "connect", "disconnect",
 ];
 
-// Patterns that are clearly OUTSIDE Nexus's domain (general chatbot usage).
+// Patterns that are clearly OUTSIDE Clavis's domain (general chatbot usage).
 const OFF_DOMAIN_PATTERNS: RegExp[] = [
   /\b(write|compose|generate)\b.*\b(poem|story|essay|song|joke|rap|lyrics|code|program|function|script)\b/i,
   /\b(explain|what is|what's|define|meaning of|how does|why does|tell me about)\b/i,
@@ -56,7 +56,7 @@ export interface GuardResult {
 }
 
 const REFUSAL_MESSAGE =
-  "I'm Nexus — I can only help with your connected services: **Gmail**, **Google Calendar**, **GitHub**, **Slack**, and **Discord**. " +
+  "I'm Clavis — I can only help with your connected services: **Gmail**, **Google Calendar**, **GitHub**, **Slack**, and **Discord**. " +
   "Try something like \"show my unread emails\", \"list my GitHub repos\", or \"send a Slack message\".";
 
 export function getRefusalMessage(): string {
@@ -78,7 +78,7 @@ function keywordVerdict(text: string): "allow" | "block" | "unknown" {
 }
 
 /**
- * Decide whether the latest user message is in Nexus's domain.
+ * Decide whether the latest user message is in Clavis's domain.
  * Runs keyword checks first (free); only calls the tiny classifier when unsure.
  */
 export async function checkDomain(latestUserText: string): Promise<GuardResult> {

@@ -179,6 +179,143 @@
   transform: scaleX(1);
 }
 
+/* Shine / shimmer text effect (e.g. "Powered by Auth0 Token Vault") */
+.text-shine {
+  color: #fff;
+  /* Wide gradient (2x text width) with a bright band; sweeps across the whole
+     phrase regardless of length using percentage-based background-position. */
+  background: linear-gradient(to right, #868686 0%, #868686 40%, #fff 50%, #868686 60%, #868686 100%);
+  background-size: 200% auto;
+  background-position: 100% 0;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shine 3s infinite linear;
+  animation-fill-mode: forwards;
+  -webkit-text-size-adjust: none;
+}
+@keyframes text-shine {
+  0% {
+    background-position: 100% 0;
+  }
+  60%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+/* Pulsing-dots loader (page-level loading states). Themed to brand accent. */
+.dots-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  --dl-color: var(--accent);
+  --dl-animation: 2s ease-in-out infinite;
+}
+.dots-loader .circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: solid 2px var(--dl-color);
+  border-radius: 50%;
+  margin: 0 8px;
+  background-color: transparent;
+  animation: dl-circle var(--dl-animation);
+}
+.dots-loader .circle .dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--dl-color);
+  animation: dl-dot var(--dl-animation);
+}
+.dots-loader .circle .outline {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  animation: dl-outline var(--dl-animation);
+}
+.dots-loader .circle:nth-child(2) { animation-delay: 0.3s; }
+.dots-loader .circle:nth-child(3) { animation-delay: 0.6s; }
+.dots-loader .circle:nth-child(4) { animation-delay: 0.9s; }
+.dots-loader .circle:nth-child(2) .dot { animation-delay: 0.3s; }
+.dots-loader .circle:nth-child(3) .dot { animation-delay: 0.6s; }
+.dots-loader .circle:nth-child(4) .dot { animation-delay: 0.9s; }
+.dots-loader .circle:nth-child(1) .outline { animation-delay: 0.9s; }
+.dots-loader .circle:nth-child(2) .outline { animation-delay: 1.2s; }
+.dots-loader .circle:nth-child(3) .outline { animation-delay: 1.5s; }
+.dots-loader .circle:nth-child(4) .outline { animation-delay: 1.8s; }
+@keyframes dl-circle {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes dl-dot {
+  0% { transform: scale(1); }
+  50% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+@keyframes dl-outline {
+  0% { transform: scale(0); outline: solid 16px var(--dl-color); outline-offset: 0; opacity: 1; }
+  100% { transform: scale(1); outline: solid 0 transparent; outline-offset: 16px; opacity: 0; }
+}
+
+/* Fancy button — border draws in on hover (two-stage scale of pseudo-elements) */
+.fancy-btn {
+  position: relative;
+  display: inline-block;
+  padding: 8px 20px;
+  border: 2px solid #fefefe;
+  text-transform: uppercase;
+  color: #fefefe;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  background-color: #0a0a0a;
+}
+.fancy-btn::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% - 12px);
+  background-color: #0a0a0a;
+  transition: 0.3s ease-in-out;
+  transform: scaleY(1);
+}
+.fancy-btn:hover::before {
+  transform: scaleY(0);
+}
+.fancy-btn::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: -2px;
+  height: calc(100% + 4px);
+  width: calc(100% - 12px);
+  background-color: #0a0a0a;
+  transition: 0.3s ease-in-out;
+  transform: scaleX(1);
+  transition-delay: 0.5s;
+}
+.fancy-btn:hover::after {
+  transform: scaleX(0);
+}
+.fancy-btn span {
+  position: relative;
+  z-index: 3;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 4px;

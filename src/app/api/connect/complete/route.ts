@@ -13,10 +13,10 @@ export async function GET(req: Request) {
   const connectCode = url.searchParams.get("connect_code");
 
   const cookieStore = await cookies();
-  const authSessionCookie = cookieStore.get("nexus_auth_session");
+  const authSessionCookie = cookieStore.get("clavis_auth_session");
 
   if (!connectCode || !authSessionCookie?.value) {
-    console.error("[Nexus] Missing connect_code or auth_session");
+    console.error("[Clavis] Missing connect_code or auth_session");
     return NextResponse.redirect(
       new URL("/dashboard/connections?error=missing_params", req.url)
     );
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
 
     if (!completeRes.ok) {
       const err = await completeRes.text();
-      console.error("[Nexus] Connected Accounts complete failed:", completeRes.status, err);
+      console.error("[Clavis] Connected Accounts complete failed:", completeRes.status, err);
       return NextResponse.redirect(
         new URL("/dashboard/connections?error=complete_failed", req.url)
       );
@@ -60,17 +60,17 @@ export async function GET(req: Request) {
 
     const result = await completeRes.json();
     console.log(
-      `[Nexus] Connected account: ${result.connection} (${result.id}), access_type: ${result.access_type}`
+      `[Clavis] Connected account: ${result.connection} (${result.id}), access_type: ${result.access_type}`
     );
 
     // Clear the cookie
-    cookieStore.delete("nexus_auth_session");
+    cookieStore.delete("clavis_auth_session");
 
     return NextResponse.redirect(
       new URL("/dashboard/connections", req.url)
     );
   } catch (err) {
-    console.error("[Nexus] Connected Accounts complete error:", err);
+    console.error("[Clavis] Connected Accounts complete error:", err);
     return NextResponse.redirect(
       new URL("/dashboard/connections?error=complete_error", req.url)
     );

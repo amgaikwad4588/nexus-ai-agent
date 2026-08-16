@@ -14,10 +14,10 @@ import {
   CheckCircle,
   ShieldAlert,
   Lock,
-  Network,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { NexusLogo } from "@/components/nexus-logo";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { fadeUp, stagger } from "@/components/dashboard/motion";
@@ -201,7 +201,7 @@ export function DashboardOverview({
                 <ArrowRight className="w-4 h-4 text-[#262626]" />
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 border border-[#262626] flex items-center justify-center">
-                    <Network className="w-4 h-4 text-[#FF3D00]" strokeWidth={1.5} />
+                    <NexusLogo className="w-8 h-8 text-[#FF3D00]" />
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-[#262626]" />

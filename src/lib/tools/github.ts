@@ -52,6 +52,7 @@ export const listGitHubRepos = withGitHubAccess(
       return {
         repos: repos.map(
           (repo: {
+            id: number;
             name: string;
             full_name: string;
             description: string | null;
@@ -60,15 +61,18 @@ export const listGitHubRepos = withGitHubAccess(
             language: string | null;
             updated_at: string;
             private: boolean;
+            fork: boolean;
           }) => ({
+            id: repo.id,
             name: repo.name,
-            fullName: repo.full_name,
+            full_name: repo.full_name,
             description: repo.description,
-            url: repo.html_url,
+            html_url: repo.html_url,
             stars: repo.stargazers_count,
             language: repo.language,
             updatedAt: repo.updated_at,
-            isPrivate: repo.private,
+            private: repo.private,
+            fork: repo.fork,
           })
         ),
       };

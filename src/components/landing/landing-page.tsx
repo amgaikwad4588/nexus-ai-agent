@@ -13,13 +13,13 @@ import {
   Sparkles,
   Activity,
   KeyRound,
-  Network,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NexusLogo } from "@/components/nexus-logo";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0, 0, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
 const stagger = {
@@ -31,10 +31,10 @@ export function LandingPage() {
     <div className="min-h-screen overflow-hidden bg-[#0A0A0A]">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-sm border-b border-[#262626]">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#FF3D00] flex items-center justify-center">
-              <Network className="w-4 h-4 text-[#0A0A0A]" />
+            <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center">
+              <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
             </div>
             <span className="text-lg font-semibold tracking-tight">Nexus</span>
           </div>
@@ -56,12 +56,12 @@ export function LandingPage() {
 
       {/* Hero Section */}
       <motion.section
-        className="pt-32 pb-40 px-6 relative"
+        className="pt-28 pb-24 px-6 relative"
         initial="hidden"
         animate="visible"
         variants={stagger}
       >
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <motion.div variants={fadeInUp} className="mb-8">
             <span className="uppercase text-xs font-medium tracking-widest text-[#737373]">
               Powered by Auth0 Token Vault
@@ -117,7 +117,7 @@ export function LandingPage() {
         viewport={{ once: true, amount: 0.3 }}
         variants={stagger}
       >
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { value: "4", label: "Services" },
             { value: "0", label: "Exposed Credentials" },
@@ -139,14 +139,14 @@ export function LandingPage() {
       {/* Features Section */}
       <motion.section
         id="features"
-        className="py-40 px-6"
+        className="py-24 px-6"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
         variants={stagger}
       >
-        <div className="max-w-5xl mx-auto">
-          <motion.div variants={fadeInUp} className="mb-20 text-center">
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeInUp} className="mb-12 text-center">
             <span className="uppercase text-xs font-medium tracking-widest text-[#737373] mb-4 block">
               Architecture
             </span>
@@ -223,7 +223,7 @@ export function LandingPage() {
         viewport={{ once: true, amount: 0.15 }}
         variants={stagger}
       >
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <motion.div variants={fadeInUp} className="mb-12 text-center">
             <span className="uppercase text-xs font-medium tracking-widest text-[#737373] mb-4 block">
               Process
@@ -288,7 +288,7 @@ export function LandingPage() {
 
       {/* Testimonial */}
       <motion.section
-        className="py-40 px-6"
+        className="py-24 px-6 bg-[#FAFAFA] text-[#0A0A0A]"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -303,7 +303,7 @@ export function LandingPage() {
           </blockquote>
           <div className="flex items-center justify-center gap-3">
             <div className="w-px h-4 bg-[#FF3D00]" />
-            <span className="text-sm text-[#737373] uppercase tracking-wider">
+            <span className="text-sm text-[#525252] uppercase tracking-wider">
               Beta User
             </span>
           </div>
@@ -312,7 +312,7 @@ export function LandingPage() {
 
       {/* CTA Section - Inverted */}
       <motion.section
-        className="py-40 px-6 bg-[#FAFAFA] text-[#0A0A0A]"
+        className="py-24 px-6 bg-[#FAFAFA] text-[#0A0A0A]"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -338,21 +338,6 @@ export function LandingPage() {
           </a>
         </motion.div>
       </motion.section>
-
-      {/* Footer */}
-      <footer className="border-t border-[#262626] py-8 px-6 bg-[#0A0A0A]">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-[#FF3D00] flex items-center justify-center">
-              <Network className="w-3 h-3 text-[#0A0A0A]" />
-            </div>
-            <span className="text-sm font-medium tracking-tight">Nexus</span>
-          </div>
-          <p className="text-xs text-[#737373] uppercase tracking-wider">
-            Built for the Authorized to Act Hackathon 2026
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

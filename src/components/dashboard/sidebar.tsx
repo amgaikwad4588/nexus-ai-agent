@@ -8,12 +8,12 @@ import {
   Shield,
   Activity,
   LayoutDashboard,
-  Network,
   LogOut,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NexusLogo } from "@/components/nexus-logo";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -59,8 +59,8 @@ export function Sidebar({ userName }: { userName?: string }) {
       {/* Logo */}
       <div className="h-16 flex items-center px-4 border-b border-[#262626] justify-between">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#FF3D00] flex items-center justify-center shrink-0">
-            <Network className="w-4 h-4 text-[#0A0A0A]" />
+          <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center shrink-0">
+            <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
           </div>
           {!collapsed && (
             <span className="text-lg font-semibold tracking-tight">Nexus</span>

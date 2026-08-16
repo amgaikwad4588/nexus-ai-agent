@@ -8,7 +8,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   Send,
-  Network,
   User,
   Loader2,
   Mail,
@@ -31,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { NexusLogo } from "@/components/nexus-logo";
 
 const toolIcons: Record<string, { icon: typeof Mail; color: string; service: string }> = {
   searchGmail: { icon: Mail, color: "text-[#DC2626]", service: "Google" },
@@ -51,11 +51,11 @@ const toolIcons: Record<string, { icon: typeof Mail; color: string; service: str
 
 const suggestedPrompts = [
   "Search my Gmail for unread emails from today",
-  "List my recent GitHub repositories",
+  "Create a GitHub issue",
+  "Send a Discord message",
+  "Send a Slack message",
   "Check my Google Calendar for tomorrow",
-  "Show my Slack channels",
-  "Show my Discord servers",
-  "What GitHub issues are assigned to me?",
+  "View my GitHub issues",
 ];
 
 interface ApprovalState {
@@ -316,6 +316,158 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
   );
 }
 
+/**
+ * Guided flow types.
+ * A "flow" is a multi-step, button-driven task (e.g. create an issue).
+ * Pickers (repo/server/channel) advance the flow; when a target is chosen for a
+ * "compose" action, an InlineActionForm collects the remaining free-text fields
+ * and emits a single natural-language command that the LLM turns into the final
+ * (step-up-gated) tool call.
+ */
+type FlowKind =
+  | "create-issue" // pick repo → compose title/body
+  | "view-issues" // pick repo → send "show issues"
+  | "send-discord" // pick server → pick channel → compose message
+  | "send-slack"; // pick channel → compose message
+
+interface ComposeTarget {
+  flow: FlowKind;
+  // Human label shown in the form header, e.g. "amgaikwad4588/nexus-ai-"
+  label: string;
+  // The identifier the final command should reference (repo full_name / channel name / id)
+  ref: string;
+}
+
+const FORM_CONFIG: Record<
+  Exclude<FlowKind, "view-issues">,
+  {
+    title: string;
+    accent: string;
+    icon: typeof GitBranch;
+    fields: { name: string; label: string; placeholder: string; multiline?: boolean; required?: boolean }[];
+    // Build the final command string sent to the model
+    build: (ref: string, values: Record<string, string>) => string;
+  }
+> = {
+  "create-issue": {
+    title: "Create GitHub Issue",
+    accent: "#F97316",
+    icon: GitBranch,
+    fields: [
+      { name: "title", label: "Issue title", placeholder: "Short summary of the issue", required: true },
+      { name: "body", label: "Description (optional)", placeholder: "Add more detail…", multiline: true },
+    ],
+    build: (ref, v) =>
+      `Create a GitHub issue in ${ref} with title "${v.title}"${v.body ? ` and body "${v.body}"` : ""}.`,
+  },
+  "send-discord": {
+    title: "Send Discord Message",
+    accent: "#6366F1",
+    icon: MessageSquare,
+    fields: [{ name: "message", label: "Message", placeholder: "Type your message…", multiline: true, required: true }],
+    build: (ref, v) => `Send this message to Discord channel ${ref}: "${v.message}"`,
+  },
+  "send-slack": {
+    title: "Send Slack Message",
+    accent: "#A855F7",
+    icon: MessageSquare,
+    fields: [{ name: "message", label: "Message", placeholder: "Type your message…", multiline: true, required: true }],
+    build: (ref, v) => `Send this message to Slack channel #${ref}: "${v.message}"`,
+  },
+};
+
+function InlineActionForm({
+  target,
+  onSubmit,
+  onCancel,
+}: {
+  target: ComposeTarget;
+  onSubmit: (command: string) => void;
+  onCancel: () => void;
+}) {
+  const config = FORM_CONFIG[target.flow as Exclude<FlowKind, "view-issues">];
+  const [values, setValues] = useState<Record<string, string>>({});
+  const Icon = config.icon;
+
+  const requiredFilled = config.fields
+    .filter((f) => f.required)
+    .every((f) => (values[f.name] || "").trim().length > 0);
+
+  const submit = () => {
+    if (!requiredFilled) return;
+    onSubmit(config.build(target.ref, values));
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="border p-4 space-y-3"
+      style={{ borderColor: `${config.accent}4D`, backgroundColor: `${config.accent}0D` }}
+    >
+      <div className="flex items-center gap-2">
+        <Icon className="w-4 h-4" style={{ color: config.accent }} strokeWidth={1.5} />
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: config.accent }}>
+          {config.title}
+        </span>
+        <span className="ml-auto text-[11px] text-[#737373] font-mono truncate max-w-[45%]" title={target.label}>
+          {target.label}
+        </span>
+      </div>
+
+      <div className="space-y-2.5">
+        {config.fields.map((field) => (
+          <div key={field.name} className="space-y-1">
+            <label className="text-[11px] text-[#737373]">
+              {field.label}
+              {field.required && <span className="text-[#DC2626]"> *</span>}
+            </label>
+            {field.multiline ? (
+              <Textarea
+                value={values[field.name] || ""}
+                onChange={(e) => setValues((p) => ({ ...p, [field.name]: e.target.value }))}
+                placeholder={field.placeholder}
+                className="min-h-16 max-h-40 resize-none text-sm"
+                rows={2}
+              />
+            ) : (
+              <input
+                value={values[field.name] || ""}
+                onChange={(e) => setValues((p) => ({ ...p, [field.name]: e.target.value }))}
+                placeholder={field.placeholder}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submit();
+                  }
+                }}
+                className="w-full bg-[#0A0A0A] border border-[#262626] px-3 py-2 text-sm outline-none focus:border-[#404040] transition-colors"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          onClick={submit}
+          disabled={!requiredFilled}
+          className="text-xs text-[#0A0A0A] disabled:opacity-40"
+          style={{ backgroundColor: config.accent }}
+        >
+          <Send className="w-3.5 h-3.5" />
+          Continue
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCancel} className="text-xs text-[#737373]">
+          Cancel
+        </Button>
+        <span className="text-[10px] text-[#737373] ml-auto">You&apos;ll confirm before it&apos;s sent</span>
+      </div>
+    </motion.div>
+  );
+}
+
 export function ChatInterface() {
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
@@ -326,6 +478,8 @@ export function ChatInterface() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [approvalStates, setApprovalStates] = useState<Record<string, ApprovalState>>({});
   const [toasts, setToasts] = useState<Toast[]>([]);
+  // The compose form currently open (repo/channel chosen, collecting free text). Only one at a time.
+  const [composeTarget, setComposeTarget] = useState<ComposeTarget | null>(null);
 
   const isLoading = status === "submitted" || status === "streaming";
 
@@ -397,6 +551,17 @@ export function ChatInterface() {
     sendMessage({ text });
   }, [sendMessage]);
 
+  // A picker item was clicked. Read-only flows send a command immediately;
+  // "compose" flows open an inline form to collect the message/issue text.
+  const startCompose = useCallback((target: ComposeTarget) => {
+    setComposeTarget(target);
+  }, []);
+
+  const submitCompose = useCallback((command: string) => {
+    setComposeTarget(null);
+    sendMessage({ text: command });
+  }, [sendMessage]);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -425,8 +590,8 @@ export function ChatInterface() {
     <div className="flex flex-col h-full bg-[#0A0A0A]">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#262626] flex items-center gap-3">
-        <div className="w-8 h-8 bg-[#FF3D00] flex items-center justify-center">
-          <Network className="w-4 h-4 text-[#0A0A0A]" strokeWidth={1.5} />
+        <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center">
+          <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
         </div>
         <div>
           <h1 className="font-semibold text-sm tracking-tight">Nexus AI Agent</h1>
@@ -450,8 +615,8 @@ export function ChatInterface() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-16"
             >
-              <div className="w-16 h-16 bg-[#FF3D00] flex items-center justify-center mx-auto mb-6">
-                <Network className="w-8 h-8 text-[#0A0A0A]" strokeWidth={1.5} />
+              <div className="w-16 h-16 bg-[#0A0A0A] flex items-center justify-center mx-auto mb-6">
+                <NexusLogo className="w-14 h-14 text-[#FF3D00]" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight mb-3">
                 What can I help you with?
@@ -502,13 +667,13 @@ export function ChatInterface() {
                 className={`w-8 h-8 flex items-center justify-center shrink-0 ${
                   message.role === "user"
                     ? "border border-[#262626]"
-                    : "bg-[#FF3D00]"
+                    : "bg-[#0A0A0A]"
                 }`}
               >
                 {message.role === "user" ? (
                   <User className="w-4 h-4 text-[#737373]" strokeWidth={1.5} />
                 ) : (
-                  <Network className="w-4 h-4 text-[#0A0A0A]" strokeWidth={1.5} />
+                  <NexusLogo className="w-7 h-7 text-[#FF3D00]" />
                 )}
               </div>
 
@@ -601,8 +766,9 @@ export function ChatInterface() {
                             {channels.map((channel) => (
                               <button
                                 key={channel.id}
-                                onClick={() => sendQuickMessage(`send hello to #${channel.name}`)}
-                                className="flex items-center gap-3 p-3 border border-[#262626] bg-[#0F0F0F] hover:border-[#6366F1]/30 transition-colors duration-150 text-left group"
+                                onClick={() => startCompose({ flow: "send-discord", label: `#${channel.name}`, ref: channel.id })}
+                                disabled={isLoading}
+                                className="flex items-center gap-3 p-3 border border-[#262626] bg-[#0F0F0F] hover:border-[#6366F1]/30 transition-colors duration-150 text-left group disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <Hash className="w-4 h-4 text-[#6366F1] shrink-0" strokeWidth={1.5} />
                                 <div className="flex-1 min-w-0">
@@ -613,7 +779,7 @@ export function ChatInterface() {
                               </button>
                             ))}
                           </div>
-                          <p className="text-[10px] text-[#737373] text-center">Click a channel to send a message</p>
+                          <p className="text-[10px] text-[#737373] text-center">Click a channel to compose a message</p>
                         </div>
                       );
                     }
@@ -645,19 +811,30 @@ export function ChatInterface() {
                                   {repo.description && <p className="text-xs text-[#737373] truncate mt-0.5">{repo.description}</p>}
                                   <p className="text-xs text-[#737373]/60 font-mono mt-0.5">{repo.full_name}</p>
                                 </div>
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-1 shrink-0">
                                   <button
-                                    onClick={() => sendQuickMessage(`show issues in ${repo.name}`)}
-                                    className="p-1.5 hover:bg-[#1A1A1A] transition-colors duration-150"
-                                    title="View issues"
+                                    type="button"
+                                    onClick={() => sendQuickMessage(`show issues in ${repo.full_name}`)}
+                                    disabled={isLoading}
+                                    className="px-2 py-1 text-[11px] border border-[#262626] hover:border-[#404040] hover:bg-[#1A1A1A] transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                    title="View issues in this repo"
                                   >
-                                    <GitBranch className="w-3.5 h-3.5 text-[#737373] group-hover:text-[#FAFAFA]" strokeWidth={1.5} />
+                                    View Issues
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => startCompose({ flow: "create-issue", label: repo.full_name, ref: repo.full_name })}
+                                    disabled={isLoading}
+                                    className="px-2 py-1 text-[11px] border border-[#F97316]/40 text-[#F97316] hover:bg-[#F97316]/10 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                                    title="Create an issue in this repo"
+                                  >
+                                    New Issue
                                   </button>
                                   <a
                                     href={repo.html_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-1.5 hover:bg-[#1A1A1A] transition-colors duration-150"
+                                    className="p-1.5 hover:bg-[#1A1A1A] transition-colors duration-150 cursor-pointer"
                                     title="Open in GitHub"
                                   >
                                     <ExternalLink className="w-3.5 h-3.5 text-[#737373] group-hover:text-[#FAFAFA]" strokeWidth={1.5} />
@@ -666,7 +843,43 @@ export function ChatInterface() {
                               </div>
                             ))}
                           </div>
-                          <p className="text-[10px] text-[#737373] text-center">Click an icon to view issues or open the repo</p>
+                          <p className="text-[10px] text-[#737373] text-center">Pick a repo: <span className="text-[#FAFAFA]">View Issues</span>, create a <span className="text-[#F97316]">New Issue</span>, or open it on GitHub</p>
+                        </div>
+                      );
+                    }
+
+                    if (toolName === "listSlackChannels" && output?.channels && Array.isArray(output.channels)) {
+                      const channels = output.channels as Array<{ id: string; name: string; purpose?: string; isPrivate?: boolean }>;
+                      return (
+                        <div key={i} className="space-y-2">
+                          <div className="flex items-center gap-2 px-3 py-2 border border-[#262626] bg-[#0F0F0F] text-xs">
+                            <Hash className="w-3.5 h-3.5 text-[#A855F7]" strokeWidth={1.5} />
+                            <span className="text-[#737373]">Slack Channels:</span>
+                            <span className="ml-auto">
+                              {isComplete ? <CheckCircle className="w-3 h-3 text-[#22C55E]" /> : <Loader2 className="w-3 h-3 animate-spin text-[#FF3D00]" />}
+                            </span>
+                          </div>
+                          <div className="grid gap-2">
+                            {channels.map((channel) => (
+                              <button
+                                key={channel.id}
+                                onClick={() => startCompose({ flow: "send-slack", label: `#${channel.name}`, ref: channel.name })}
+                                disabled={isLoading}
+                                className="flex items-center gap-3 p-3 border border-[#262626] bg-[#0F0F0F] hover:border-[#A855F7]/30 transition-colors duration-150 text-left group disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                <Hash className="w-4 h-4 text-[#A855F7] shrink-0" strokeWidth={1.5} />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm font-medium">#{channel.name}</p>
+                                    {channel.isPrivate && <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-[#EAB308] border-[#EAB308]/30">Private</Badge>}
+                                  </div>
+                                  {channel.purpose && <p className="text-xs text-[#737373] truncate mt-0.5">{channel.purpose}</p>}
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-[#737373] group-hover:text-[#A855F7] transition-colors duration-150" />
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-[10px] text-[#737373] text-center">Click a channel to compose a message</p>
                         </div>
                       );
                     }
@@ -750,6 +963,19 @@ export function ChatInterface() {
           )}
         </div>
       </ScrollArea>
+
+      {/* Active compose form (guided flow) */}
+      {composeTarget && (
+        <div className="px-4 pt-3 border-t border-[#262626]">
+          <div className="max-w-3xl mx-auto">
+            <InlineActionForm
+              target={composeTarget}
+              onSubmit={submitCompose}
+              onCancel={() => setComposeTarget(null)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Input */}
       <div className="p-4 border-t border-[#262626]">

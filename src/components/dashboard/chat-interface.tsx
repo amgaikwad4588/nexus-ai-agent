@@ -31,6 +31,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClavisLogo } from "@/components/clavis-logo";
 import { CalendarIcon } from "@/components/icons/calendar-icon";
+import { useChatHistory } from "@/lib/use-chat-history";
+import { ChatHistorySidebar } from "@/components/dashboard/chat-history-sidebar";
 
 type IconComponent = React.ComponentType<{ className?: string; strokeWidth?: number }>;
 
@@ -471,9 +473,18 @@ function InlineActionForm({
 }
 
 export function ChatInterface() {
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
+  const { chats, activeId, activeChat, hydrated, newChat, setActive, saveMessages, deleteChat } =
+    useChatHistory();
+  // Guards which chat's messages are currently loaded into useChat, so we don't
+  // save one chat's messages over another during a switch.
+  const loadedChatId = useRef<string | null>(null);
+  // Set true right after we call setMessages() for a newly-activated chat, so
+  // the persist effect ignores that transitional render (which may still carry
+  // the previous chat's messages) and only saves genuine user edits.
+  const justLoaded = useRef(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -574,6 +585,56 @@ export function ChatInterface() {
     if (messages.length > 0) setShowSuggestions(false);
   }, [messages.length]);
 
+  // ── Chat history sync ──
+  // Make sure there's always an active conversation once history has hydrated.
+  useEffect(() => {
+    if (activeId === null && chats.length === 0) {
+      newChat();
+    }
+  }, [activeId, chats.length, newChat]);
+
+  // When the active conversation changes, load its messages into useChat.
+  useEffect(() => {
+    if (!activeId) return;
+    if (loadedChatId.current === activeId) return;
+    loadedChatId.current = activeId;
+    justLoaded.current = true; // ignore the resulting messages render in persist
+    setMessages(activeChat?.messages ?? []);
+    setComposeTarget(null);
+    setShowSuggestions((activeChat?.messages?.length ?? 0) === 0);
+  }, [activeId, activeChat, setMessages]);
+
+  // Persist messages to the active conversation as they change (once loaded).
+  useEffect(() => {
+    if (!activeId || loadedChatId.current !== activeId) return;
+    // Skip the transitional render right after a chat switch/new-chat: the
+    // messages there belong to the just-loaded chat, not a user edit.
+    if (justLoaded.current) {
+      justLoaded.current = false;
+      return;
+    }
+    if (messages.length === 0) return;
+    saveMessages(activeId, messages);
+  }, [messages, activeId, saveMessages]);
+
+  const handleNewChat = useCallback(() => {
+    // Don't switch away while a response is streaming — the in-flight stream is
+    // bound to the single useChat instance and would land in the wrong chat.
+    if (isLoading) return;
+    loadedChatId.current = null;
+    newChat();
+  }, [newChat, isLoading]);
+
+  const handleSelectChat = useCallback(
+    (id: string) => {
+      if (id === activeId) return;
+      if (isLoading) return; // block switching mid-stream (see handleNewChat)
+      loadedChatId.current = null;
+      setActive(id);
+    },
+    [activeId, setActive, isLoading]
+  );
+
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -589,7 +650,19 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0A0A0A]">
+    <div className="flex h-full bg-[#0A0A0A]">
+      {/* History sidebar */}
+      <ChatHistorySidebar
+        chats={hydrated ? chats : []}
+        activeId={activeId}
+        disabled={isLoading}
+        onSelect={handleSelectChat}
+        onNew={handleNewChat}
+        onDelete={deleteChat}
+      />
+
+      {/* Chat column */}
+      <div className="flex flex-col h-full flex-1 min-w-0 bg-[#0A0A0A]">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#262626] flex items-center gap-3">
         <div className="w-8 h-8 bg-[#0A0A0A] flex items-center justify-center">
@@ -1013,6 +1086,7 @@ export function ChatInterface() {
           All actions are authenticated via Auth0 Token Vault and logged in the
           audit trail
         </p>
+      </div>
       </div>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>

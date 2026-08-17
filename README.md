@@ -8,26 +8,23 @@
 
 *The only AI command center that bridges Gmail, GitHub, Slack & Discord — without ever touching your passwords.*
 
-[![Built for Auth0 Hackathon 2026](https://img.shields.io/badge/Auth0%20Hackathon-2026-blue?style=for-the-badge&logo=auth0)](https://authorizedtoact.devpost.com/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](./LICENSE)
 
-[Live Demo](https://nexus-ai-alpha-seven.vercel.app/) · [Watch the Video](https://www.youtube.com/watch?v=G4OS3nOluJM) · [Devpost](https://authorizedtoact.devpost.com/) · [GitHub](https://github.com/amgaikwad4588/nexus-ai-agent)
+[Live Demo](https://nexus-ai-alpha-seven.vercel.app/) · [Watch the Video](https://www.youtube.com/watch?v=G4OS3nOluJM) · [GitHub](https://github.com/amgaikwad4588/nexus-ai-agent)
 
 </div>
 
 ---
 
-## What I Built
+## Overview
 
 > *"Summarize my unread emails and post a digest to #general on Slack."*
 
 One sentence. Four services. Zero passwords exposed.
 
 **Clavis** is an AI-powered command center that lets you control Google, GitHub, Slack, and Discord through plain English — while [Auth0 Token Vault](https://auth0.com/docs/secure/tokens/token-vault) handles every credential with zero raw token exposure. Every action passes through a **centralized risk engine** that decides in real time: auto-execute, require step-up approval, demand re-authentication, or block entirely.
-
-Built for the [**Authorized to Act: Auth0 for AI Agents Hackathon 2026**](https://authorizedtoact.devpost.com/).
 
 ---
 
@@ -49,6 +46,19 @@ The result: an AI agent you can actually trust.
 
 ---
 
+## Key Features
+
+- **Natural-language command center** — control Gmail, Google Calendar, GitHub, Slack, and Discord in plain English.
+- **Guided, button-driven flows** — for actions like creating a GitHub issue or sending a message, Clavis shows clickable pickers (repos, servers, channels) and inline forms instead of making you type IDs. Built for non-technical users.
+- **Centralized risk engine** — every tool call is classified low / medium / high and routed to auto-execute, step-up approval, or re-authentication.
+- **Step-up & re-authentication** — write operations queue for explicit approval; destructive operations demand identity re-verification.
+- **Domain guard** — a lightweight keyword + tiny-classifier gate keeps the agent scoped to its connected services, refusing off-topic requests before they reach the model (saving tokens).
+- **Chat history** — multiple conversations with a sidebar, persisted locally so your sessions survive refreshes.
+- **Real-time audit trail** — every action logged with scopes, risk level, decision, and timestamp.
+- **Permissions dashboard** — visualize and toggle what each connected service can do.
+
+---
+
 ## What Clavis Can Do
 
 Talk to Clavis like you'd talk to a colleague:
@@ -61,7 +71,7 @@ Talk to Clavis like you'd talk to a colleague:
 
 > *"Show my Discord servers and check my roles"*
 
-Under the hood, Clavis has **12 tools** across 4 services:
+Under the hood, Clavis has **15 tools** across 4 services:
 
 | Tool | Service | What It Does | Risk | Auth Method |
 |------|---------|-------------|------|-------------|
@@ -71,14 +81,17 @@ Under the hood, Clavis has **12 tools** across 4 services:
 | `getGitHubIssues` | GitHub | View issues on a repo | Low | Token Vault |
 | `getGitHubProfile` | GitHub | Get your GitHub profile | Low | Token Vault |
 | `createGitHubIssue` | GitHub | Create a new issue | Medium | Token Vault + Step-Up |
+| `deleteGitHubRepo` | GitHub | Delete a repository | High | Token Vault + Re-Auth |
 | `listSlackChannels` | Slack | Browse your channels | Low | Bot Token |
 | `getSlackChannelHistory` | Slack | Read channel messages | Low | Bot Token |
 | `sendSlackMessage` | Slack | Send a message | Medium | Bot Token + Step-Up |
 | `getDiscordProfile` | Discord | Get your Discord profile | Low | Token Vault |
 | `listDiscordGuilds` | Discord | List your servers | Low | Token Vault |
+| `listDiscordChannels` | Discord | List channels in a server | Low | Bot Token |
 | `getDiscordGuildMember` | Discord | Check membership & roles | Low | Token Vault |
+| `sendDiscordMessage` | Discord | Send a message to a channel | Medium | Bot Token + Step-Up |
 
-Medium-risk (write) operations trigger step-up authentication before executing.
+Medium-risk (write) operations trigger step-up authentication; high-risk destructive operations (deleting a repo) require full re-authentication before executing.
 
 ---
 
@@ -107,9 +120,11 @@ You  →  Clavis AI  →  Auth0 Token Vault  →  Google / GitHub / Discord
 | Auth | Auth0 NextJS SDK v4 |
 | Token Vault | Auth0 AI SDK (`@auth0/ai`, `@auth0/ai-vercel`) |
 | Risk Engine | Custom `riskEngine()` — centralized decision layer |
+| Domain Guard | Keyword + tiny Gemini classifier — keeps the agent on-topic |
 | AI Model | Google Gemini (via Vercel AI SDK v6) |
 | UI | Tailwind CSS v4, shadcn/ui, Framer Motion |
 | Audit Store | Persistent JSON file (`data/audit-log.json`) |
+| Chat History | Browser `localStorage` (per-device) |
 | Deployment | Vercel |
 
 ---

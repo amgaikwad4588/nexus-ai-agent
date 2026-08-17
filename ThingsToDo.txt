@@ -1,40 +1,8 @@
-# Clavis - Hackathon Submission Status
+# Clavis - Developer Notes
 
-## Submission Requirements
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| Deployed project link | ❌ TODO | Deploy to Vercel |
-| 3-min demo video | ❌ TODO | Record and upload to YouTube |
-| Public code repo | ✅ Done | github.com/amgaikwad4588/nexus-ai-agent |
-| Text description | ❌ TODO | Write Devpost submission text |
+## Deployment Gotchas: Localhost vs Vercel
 
----
-
-## Judging Criteria - Current Status
-
-### 1. Security Model — ✅ Strong
-- ✅ Step-up auth for write operations
-- ✅ Centralized Risk Engine (EXECUTE/STEP_UP/REAUTH/BLOCK)
-- ✅ DPoP with auto-rotation (24h)
-
-### 2. User Control — ✅ Medium-Strong
-- ✅ Approval workflow with step-up auth cards
-- ✅ Per-tool permission toggles
-
-### 3. Technical Execution — ✅ Strong
-- ✅ Token Vault for GitHub, Google, Discord
-- ✅ Persistent audit log
-
-### 4. Insight Value — ✅ High
-- ✅ Pain points documented
-- ✅ Blog post for $250 bonus
-- ✅ Localhost vs Vercel deployment gotchas (see below)
-
----
-
-## Pain Point: Localhost vs Vercel Deployment
-
-Everything works locally but breaks on Vercel. Three issues discovered:
+Everything works locally but can break on Vercel. Three issues discovered:
 
 ### 1. Read-only Filesystem
 Vercel serverless functions have a **read-only filesystem**. Any `fs.writeFileSync()` call crashes at runtime. Our audit log wrote to `data/audit-log.json` — every tool call crashed silently. Fix: in-memory fallback when `process.env.VERCEL` is detected.
@@ -47,14 +15,14 @@ On Vercel, `auth0.getSession()` (which reads cookies via `next/headers`) **retur
 
 ---
 
-## Services: 13 Tools (4 Services)
+## Services: 15 Tools (4 Services)
 
 | Service | Auth | Tools | Status |
 |---------|------|-------|--------|
-| Google | Token Vault | 2 | ✅ |
-| GitHub | Token Vault | 5 | ✅ |
-| Slack | Bot Token | 3 | ✅ |
-| Discord | Token Vault | 3 | ✅ |
+| Google  | Token Vault | 2 | Done |
+| GitHub  | Token Vault | 5 | Done |
+| Slack   | Bot Token   | 3 | Done |
+| Discord | Token Vault + Bot Token | 5 | Done |
 
 ---
 
@@ -65,29 +33,19 @@ On Vercel, `auth0.getSession()` (which reads cookies via `next/headers`) **retur
 - [x] Risk Engine (low/medium/high/unknown)
 - [x] Step-up auth cards
 - [x] Persistent audit log
+- [x] Domain guard (keyword + tiny classifier)
 
-### UI/UX
-- [x] DotGrid background (free GSAP)
-- [x] Animated icons
-- [x] BlurText animations
-- [x] Glow effects
-
----
-
-## Remaining Tasks
-
-### High Priority
-- [ ] Deploy to Vercel
-- [ ] Record 3-min demo video
-- [ ] Write Devpost text description
-
-### Bonus
-- [ ] Blog Post (~250 words) — $250 prize
+### UX
+- [x] Guided button-driven flows (repo/server/channel pickers + inline forms)
+- [x] Chat history (localStorage, multiple conversations)
+- [x] Animated icons and effects
 
 ---
 
-## Key Pitch
+## Known Limitations (not yet production-ready)
 
-**Problem:** "What happens when your AI agent sends a Slack message you didn't approve?"
-
-**Solution:** Clavis — risk-based authorization, step-up auth, re-auth for destructive actions, full audit trail.
+- Permission toggles live in an in-memory Map + browser localStorage — reset on
+  redeploy/cold start; not account-scoped across devices.
+- Audit log is in-memory on Vercel — lost on redeploy.
+- Chat history is per-browser (localStorage), not synced across devices.
+- Fix path: move these to a real database keyed by the Auth0 user id.
